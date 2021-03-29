@@ -1,30 +1,34 @@
 use crate::{Parsable, ParseError};
-use std::io::Cursor;
+use slicebuffer::Buf;
 
 pub struct Space {
 	spaces: Vec<char>
 }
 
 impl Parsable<char> for Space {
-	fn try_parse(buffer: &mut Cursor<&[char]>) -> Result<Self, ParseError<char>> {
+	fn try_parse(buffer: &mut &[char]) -> Result<(Self, usize), ParseError<char>> {
 		let mut spaces = Vec::new();
-		while match buffer.next() {
-			Some(char) => match char {
-				' ' | '\t' | '\r' | '\n' => {
-					spaces.push(char)
-				},
-				_ => false
+		while match {
+			let mut c = ['\0'; 1];
+			buffer.read(&mut c);
+			c[0]
+		} {
+			
+			c @ (' ' | '\t' | '\r' | '\n') => {
+				spaces.push(c);
+				true
 			},
-			None => false
+			_ => false
 		} {}
 		if spaces.is_empty() {
 			Err(ParseError::new([
-				' ', '\t', '\r', '\n'
-			].into(), buffer.position()))
+								vec![' '], vec!['\t'], vec!['\r'], vec!['\n']
+			].into(), 0))
 		} else {
-			Self {
+			let read = spaces.len();
+			Ok((Self {
 				spaces
-			}
+			},read))
 		}
 	}
 

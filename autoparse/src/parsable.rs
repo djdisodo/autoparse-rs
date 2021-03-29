@@ -1,15 +1,14 @@
 use crate::ParseError;
-use std::io::{Cursor, Seek};
 
-pub trait Parsable<T: Clone> {
-	fn try_parse(buffer: &mut Cursor<&[T]>) -> Result<Self, ParseError<T>>;
+pub trait Parsable<T: Clone + Sized>: Sized {
+	fn try_parse(buffer: &mut &[T]) -> Result<(Self, usize), ParseError<T>>;
 
-	fn try_parse_rewind_when_fail(buffer: &mut Cursor<&[T]>)  -> Result<Self, ParseError<T>> {
+	fn try_parse_rewind_when_fail(buffer: &mut &[T])  -> Result<(Self, usize), ParseError<T>> {
 		let buffer_clone = buffer.clone();
 		match Self::try_parse(buffer) {
 			Ok(parsed) => Ok(parsed),
 			Err(error) => {
-				std::mem::replace(buffer, buffer_clone);
+				*buffer = buffer_clone;
 				Err(error)
 			}
 		}
@@ -18,11 +17,11 @@ pub trait Parsable<T: Clone> {
 	fn write(&self, buffer: &mut Vec<T>);
 }
 
-impl<T, U: Parsable<T>> Parsable<T> for Option<U> {
-	fn try_parse(buffer: &mut Cursor<&[T]>) -> Result<Self, ParseError<T>> {
+impl<T: Clone + Sized, U: Parsable<T>> Parsable<T> for Option<U> {
+	fn try_parse(buffer: &mut &[T]) -> Result<(Self, usize), ParseError<T>> {
 		Ok(match U::try_parse_rewind_when_fail(buffer) {
-			Ok(parsed) => Some(parsed),
-			Err(_) => None
+			Ok((parsed, r)) => (Some(parsed), r),
+			Err(_) => (None, 0)
 		})
 	}
 
@@ -33,14 +32,15 @@ impl<T, U: Parsable<T>> Parsable<T> for Option<U> {
 	}
 }
 
-impl<T, U: Parsable<T>> Parsable<T> for Vec<U> {
-	fn try_parse(buffer: &mut Cursor<&[T]>) -> Result<Self, ParseError<T>> {
+impl<T: Clone + Sized, U: Parsable<T>> Parsable<T> for Vec<U> {
+	fn try_parse(buffer: &mut &[T]) -> Result<(Self, usize), ParseError<T>> {
 		let mut new = Vec::new();
-		let original = buffer.stream_len();
-		while let Ok(parsed) = U::try_parse_rewind_when_fail(buffer) {
-			new.push(parsed)
+		let mut read = 0;
+		while let Ok((parsed, r)) = U::try_parse_rewind_when_fail(buffer) {
+			new.push(parsed);
+			read += r;
 		}
-		Ok(new)
+		Ok((new, read))
 	}
 
 	fn write(&self, buffer: &mut Vec<T>) {
@@ -50,18 +50,25 @@ impl<T, U: Parsable<T>> Parsable<T> for Vec<U> {
 	}
 }
 
-impl<T, U1: Parsable<T>, U2: Parsable<T>> Parsable<T> for (U1, U2) {
-	fn try_parse(buffer: &mut Cursor<&[T]>) -> Result<Self, ParseError<T>> {
+impl<T: Clone + Sized, U1: Parsable<T>, U2: Parsable<T>> Parsable<T> for (U1, U2) {
+	fn try_parse(buffer: &mut &[T]) -> Result<(Self, usize), ParseError<T>> {
+		let mut read = 0;
 		let u1 = match U1::try_parse(buffer) {
-			Ok(parsed) => parsed,
+			Ok((parsed, r)) => {
+				read += r;
+				parsed
+			},
 			Err(e) => return Err(e)
 		};
 
 		let u2 = match U2::try_parse(buffer) {
-			Ok(parsed) => parsed,
-			Err(e) => return Err(e)
+			Ok((parsed, r)) => {
+				read += r;
+				parsed
+			},
+			Err(e) => return Err(e.advance(read))
 		};
-		Ok((u1, u2))
+		Ok(((u1, u2), read))
 	}
 
 	fn write(&self, buffer: &mut Vec<T>) {

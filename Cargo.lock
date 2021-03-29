@@ -13,4 +13,9 @@ name = "autoparse"
 version = "0.1.0"
 dependencies = [
  "arrayvec",
+ "slicebuffer",
 ]
+
+[[package]]
+name = "slicebuffer"
+version = "0.1.0"

@@ -1,16 +1,20 @@
-use arrayvec::ArrayVec;
 
 #[derive(Clone)]
 pub struct ParseError<T> {
-	pub expected: ArrayVec<ArrayVec<T, 10>, 1>, //as it's usually small
-	pub at: u64
+	pub expected: Vec<Vec<T>>,
+	pub at: usize
 }
 
 impl<T> ParseError<T> {
-	pub fn new(expected: ArrayVec<ArrayVec<T, 10>, 1>, at: u64) -> Self {
+	pub fn new(expected: Vec<Vec<T>>, at: usize) -> Self {
 		Self {
 			expected,
 			at
 		}
+	}
+
+	pub fn advance(mut self, amount: usize) -> Self {
+		self.at += amount;
+		self
 	}
 }
