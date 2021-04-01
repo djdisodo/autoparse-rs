@@ -1,8 +1,6 @@
 use crate::{Parsable, ParseError};
 use std::io::{Cursor, Read};
 
-/// plz use zero sized type!
-/// if you're not sure use macro
 trait Token<T> {
 	const TOKEN: &'static [T];
 }

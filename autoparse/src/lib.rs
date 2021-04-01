@@ -9,7 +9,8 @@ mod parse_error;
 pub use parsable::Parsable;
 pub use parse_error::ParseError;
 
-
+//macro hack
+use crate as autoparse;
 
 #[cfg(test)]
 mod tests {
