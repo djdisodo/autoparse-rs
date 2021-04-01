@@ -38,7 +38,7 @@ pub fn derive_parsable(item: proc_macro::TokenStream) -> proc_macro::TokenStream
             }
         }
     }
-    std::fs::write("/home/sodo/debug.rs", output.to_string()).unwrap();
+    //std::fs::write("/home/sodo/debug.rs", output.to_string()).unwrap();
     output.into()
 }
 
@@ -60,7 +60,7 @@ fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &
                 });
                 fields.push(field_name);
                 token_stream_write.extend_one(quote! {
-                    crate::autoparse::Parsable::write(self.#field_name, buffer);
+                    crate::autoparse::Parsable::write(&self.#field_name, buffer);
                 });
             }
             quote! {
@@ -74,7 +74,7 @@ fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &
                             },
                             *read
                         ))
-                    })().map_err(| e | e.advance(*read))
+                    })().map_err(| e: crate::autoparse::ParseError<#parse> | e.advance(*read))
                 }
 
                 fn write(&self, buffer: &mut Vec<#parse>) {
@@ -87,6 +87,11 @@ fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &
     
     
     let span = Span::call_site();
+    
+    let mut type_args: Punctuated<_, Comma> = Punctuated::new();
+    for param in generics.type_params() {
+        type_args.push(param.ident.clone());
+    }
     let implement = ItemImpl {
         attrs: vec![],
         defaultness: None,
@@ -94,7 +99,7 @@ fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &
         impl_token: Token![impl](span),
         generics: generics.clone(),
         trait_: Some((None, syn::parse2(quote! { crate::autoparse::Parsable<#parse> }).unwrap(), Token![for](span))),
-        self_ty: Box::new(syn::parse2(quote! { #ident }).unwrap()),
+        self_ty: Box::new(syn::parse2(quote! { #ident<#type_args> }).unwrap()),
         brace_token: Brace { span },
         items: vec![ImplItem::Verbatim(items)] 
     };

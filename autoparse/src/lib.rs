@@ -1,4 +1,3 @@
-#![feature(or_patterns)]
 pub mod general;
 
 //pub mod token;
