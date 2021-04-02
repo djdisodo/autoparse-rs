@@ -2,7 +2,7 @@
 use proc_macro2::{Ident, Span};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::{Data, DataStruct, DeriveInput, Fields, Generics, ImplItem, ItemImpl, Meta, NestedMeta, Path, Token, punctuated::Punctuated, token::{Brace, Comma}};
+use syn::{Data, DataEnum, DataStruct, DeriveInput, Fields, Generics, ImplItem, ItemImpl, Meta, NestedMeta, Path, Token, punctuated::Punctuated, token::{Brace, Comma}};
 
 extern crate syn;
 
@@ -82,6 +82,46 @@ fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &
                 }
             }
         },
+        Fields::Unnamed(fields_unnamed) => {
+            let mut token_stream_parse = TokenStream2::new();
+            let mut fields: Punctuated<Ident, Comma> = Punctuated::new();
+            let mut token_stream_write = TokenStream2::new();
+            let mut field_count = 0;
+
+            for field in fields_unnamed.unnamed.iter() {
+                types.push(&field.ty);
+                let _field_name = Ident::new(&format!("_{}", field_count), Span::call_site());
+                let field_type = &field.ty;
+                token_stream_parse.extend_one(quote! {
+                    let (#_field_name, r): (#field_type, _) = crate::autoparse::Parsable::try_parse(buffer)?;
+                    *read += r;
+                });
+                fields.push(_field_name);
+                let field_name = syn::Index::from(field_count);
+                token_stream_write.extend_one(quote! {
+                    crate::autoparse::Parsable::write(&self.#field_name, buffer);
+                });
+                field_count += 1;
+            }
+            quote! {
+                fn try_parse(buffer: &mut &[#parse]) -> Result<(Self, usize), crate::autoparse::ParseError<#parse>> {
+                    let read = &mut 0;
+                    (|| {
+                        #token_stream_parse
+                        Ok((
+                            Self (
+                                #fields
+                            ),
+                            *read
+                        ))
+                    })().map_err(| e: crate::autoparse::ParseError<#parse> | e.advance(*read))
+                }
+
+                fn write(&self, buffer: &mut Vec<#parse>) {
+                    #token_stream_write
+                }
+            }
+        },
         _ => TokenStream2::new() //todo
     };
     
@@ -106,4 +146,9 @@ fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &
     quote! {
         #implement
     }
+}
+
+
+fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &DataEnum, parse: Path) -> TokenStream2 {
+    TokenStream2::new() //todo
 }
