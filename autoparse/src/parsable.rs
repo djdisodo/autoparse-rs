@@ -77,7 +77,6 @@ impl<T: Clone + Sized, U1: Parsable<T>, U2: Parsable<T>> Parsable<T> for (U1, U2
 	}
 }
 
-
 /// this is a flag trait that means parsing is lossy
 pub trait Lossy {
 	

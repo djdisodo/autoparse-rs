@@ -6,7 +6,7 @@ mod parsable;
 mod parse_error;
 
 pub use parsable::Parsable;
-pub use parse_error::ParseError;
+pub use parse_error::*;
 
 //macro hack
 use crate as autoparse;

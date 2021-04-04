@@ -28,12 +28,13 @@ pub fn derive_parsable(item: proc_macro::TokenStream) -> proc_macro::TokenStream
 
             for nested in list.nested.iter() {
                 if let NestedMeta::Meta(Meta::Path(path)) = nested {
-                    match input.data {
-                        Data::Struct(ref data_struct) => output.extend_one(
-                            derive_parsable_for_struct(&input.ident, &input.generics, data_struct, path.clone())
-                        ),
-                        _ => {},
-                    }
+                    output.extend_one(match &input.data {
+                        Data::Struct(data_struct) =>
+                            derive_parsable_for_struct(&input.ident, &input.generics, data_struct, &path),
+                        Data::Enum(data_enum) =>
+                            derive_parsable_for_enum(&input.ident, &input.generics, data_enum, &path),
+                        Data::Union(_) => panic!("can't derive Parsable for Union")
+                    })
                 }
             }
         }
@@ -42,10 +43,9 @@ pub fn derive_parsable(item: proc_macro::TokenStream) -> proc_macro::TokenStream
     output.into()
 }
 
-fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &DataStruct, parse: Path) -> TokenStream2 {
-    
-    let mut types = Vec::new();
-    let items = match &data_struct.fields {
+fn generate_code_for_fields<'a>(fields: &'a Fields, self_constructor: TokenStream2, self_accesss: TokenStream2, parse: &Path) -> (TokenStream2, TokenStream2, Vec<&'a syn::Type>, TokenStream2) {
+    let mut types = vec![];
+    match fields {
         Fields::Named(fields_named) => {
             let mut token_stream_parse = TokenStream2::new();
             let mut fields: Punctuated<&Ident, Comma> = Punctuated::new();
@@ -60,27 +60,21 @@ fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &
                 });
                 fields.push(field_name);
                 token_stream_write.extend_one(quote! {
-                    crate::autoparse::Parsable::write(&self.#field_name, buffer);
+                    crate::autoparse::Parsable::write(#self_accesss #field_name, buffer);
                 });
             }
-            quote! {
-                fn try_parse(buffer: &mut &[#parse]) -> Result<(Self, usize), crate::autoparse::ParseError<#parse>> {
-                    let read = &mut 0;
-                    (|| {
-                        #token_stream_parse
-                        Ok((
-                            Self {
-                                #fields
-                            },
-                            *read
-                        ))
-                    })().map_err(| e: crate::autoparse::ParseError<#parse> | e.advance(*read))
-                }
-
-                fn write(&self, buffer: &mut Vec<#parse>) {
-                    #token_stream_write
-                }
-            }
+            return (quote! {
+                let read = &mut 0;
+                (|| {
+                    #token_stream_parse
+                    Ok((
+                        #self_constructor {
+                            #fields
+                        },
+                        *read
+                    ))
+                })().map_err(| e: crate::autoparse::ParseError<#parse> | e.advance(*read))
+            }, token_stream_write, types, quote! { { #fields } });
         },
         Fields::Unnamed(fields_unnamed) => {
             let mut token_stream_parse = TokenStream2::new();
@@ -98,34 +92,45 @@ fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &
                 });
                 fields.push(_field_name);
                 let field_name = syn::Index::from(field_count);
+                
                 token_stream_write.extend_one(quote! {
-                    crate::autoparse::Parsable::write(&self.#field_name, buffer);
+                    crate::autoparse::Parsable::write(#self_accesss #field_name, buffer);
                 });
                 field_count += 1;
             }
-            quote! {
-                fn try_parse(buffer: &mut &[#parse]) -> Result<(Self, usize), crate::autoparse::ParseError<#parse>> {
-                    let read = &mut 0;
-                    (|| {
-                        #token_stream_parse
-                        Ok((
-                            Self (
-                                #fields
-                            ),
-                            *read
-                        ))
-                    })().map_err(| e: crate::autoparse::ParseError<#parse> | e.advance(*read))
-                }
+            return (quote! {
+                let read = &mut 0;
+                (|| {
+                    #token_stream_parse
+                    Ok((
+                        #self_constructor (
+                            #fields
+                        ),
+                        *read
+                    ))
+                })().map_err(| e: crate::autoparse::ParseError<#parse> | e.advance(*read))
+            }, token_stream_write, types, quote! { (#fields,) });
 
-                fn write(&self, buffer: &mut Vec<#parse>) {
-                    #token_stream_write
-                }
-            }
         },
-        _ => TokenStream2::new() //todo
+        Fields::Unit => return (quote! { let result: Result<_, crate::autoparse::ParseError<#parse>> = Ok((#self_constructor, 0)); result }, quote! {}, vec![], quote! {})
     };
+
+}
+
+fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &DataStruct, parse: &Path) -> TokenStream2 {
     
-    
+    let (token_stream_parse, token_stream_write, _, _) = generate_code_for_fields(&data_struct.fields, quote! { Self }, quote! { &self. }, parse);
+
+    let items = quote! {
+        fn try_parse(buffer: &mut &[#parse]) -> Result<(Self, usize), crate::autoparse::ParseError<#parse>> {
+            #token_stream_parse
+        }
+
+        fn write(&self, buffer: &mut Vec<#parse>) {
+            #token_stream_write
+        }
+    };
+
     let span = Span::call_site();
     
     let mut type_args: Punctuated<_, Comma> = Punctuated::new();
@@ -149,6 +154,82 @@ fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &
 }
 
 
-fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &DataEnum, parse: Path) -> TokenStream2 {
-    TokenStream2::new() //todo
+fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &DataEnum, parse: &Path) -> TokenStream2 {
+    let mut token_stream_parse = quote! {
+        let mut error: crate::autoparse::ParseError<#parse> = Default::default();
+    };
+    let mut token_stream_write_match: Punctuated<TokenStream2, Comma> = Punctuated::new();
+
+    for variant in data_enum.variants.iter() {
+        let variant_ident = &variant.ident;
+        let self_access = if let Fields::Unnamed(_) = variant.fields {
+            quote! { self_a. }
+        } else {
+            quote! {}
+        };
+
+        let (token_stream_parse_variant, token_stream_write_variant, _, field_bind) = generate_code_for_fields(
+            &variant.fields,
+            quote! { #ident :: #variant_ident },
+            self_access,
+            parse
+        );
+        
+        token_stream_parse.extend_one(quote! {
+            match {
+                #token_stream_parse_variant
+            } {
+                Ok((parsed, read)) => return Ok((parsed, read)),
+                Err(e) => (*error).extend(e.expections)
+            }
+        });
+
+        let rebind = if let Fields::Unnamed(_) = variant.fields {
+            quote! {
+                let self_a = #field_bind;
+            }
+        } else {
+            quote! {}
+        };
+
+        token_stream_write_match.push(quote! {
+            #ident :: #variant_ident #field_bind => {
+                #rebind
+                #token_stream_write_variant
+            }
+        });
+    }
+    let items = quote! {
+        fn try_parse(buffer: &mut &[#parse]) -> Result<(Self, usize), crate::autoparse::ParseError<#parse>> {
+            #token_stream_parse
+            Err(error)
+        }
+
+        fn write(&self, buffer: &mut Vec<#parse>) {
+            match self {
+                #token_stream_write_match
+            }
+        }
+    };
+
+    let span = Span::call_site();
+    
+    let mut type_args: Punctuated<_, Comma> = Punctuated::new();
+    for param in generics.type_params() {
+        type_args.push(param.ident.clone());
+    }
+    let implement = ItemImpl {
+        attrs: vec![],
+        defaultness: None,
+        unsafety: None,
+        impl_token: Token![impl](span),
+        generics: generics.clone(),
+        trait_: Some((None, syn::parse2(quote! { crate::autoparse::Parsable<#parse> }).unwrap(), Token![for](span))),
+        self_ty: Box::new(syn::parse2(quote! { #ident<#type_args> }).unwrap()),
+        brace_token: Brace { span },
+        items: vec![ImplItem::Verbatim(items)] 
+    };
+    quote! {
+        #implement
+    }
 }

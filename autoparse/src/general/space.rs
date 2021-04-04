@@ -38,15 +38,10 @@ impl Parsable<char> for Space {
 }
 
 pub type MaySpace = Option<Space>;
-/*
 #[derive(autoparse_derive::Parsable)]
 #[parse(char)]
 pub struct MaySpaced<T: Parsable<char>> {
 	head: MaySpace,
 	inner: T,
 	tail: MaySpace
-}*/
-
-#[derive(autoparse_derive::Parsable)]
-#[parse(char)]
-pub struct MaySpaced<T: Parsable<char>>(MaySpace, T, MaySpace);
+}
