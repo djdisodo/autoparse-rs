@@ -1,15 +1,8 @@
-pub mod general;
-
-//pub mod token;
-
 mod parsable;
 mod parse_error;
 
 pub use parsable::Parsable;
 pub use parse_error::*;
-
-//macro hack
-use crate as autoparse;
 
 #[cfg(test)]
 mod tests {

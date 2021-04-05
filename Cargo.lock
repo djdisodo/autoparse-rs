@@ -13,7 +13,6 @@ name = "autoparse"
 version = "0.1.0"
 dependencies = [
  "arrayvec",
- "autoparse-derive",
  "slicebuffer",
 ]
 
@@ -21,9 +20,19 @@ dependencies = [
 name = "autoparse-derive"
 version = "0.1.0"
 dependencies = [
+ "autoparse",
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "autoparse-general"
+version = "0.1.0"
+dependencies = [
+ "autoparse",
+ "autoparse-derive",
+ "slicebuffer",
 ]
 
 [[package]]

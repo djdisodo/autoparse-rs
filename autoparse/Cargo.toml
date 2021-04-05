@@ -9,4 +9,3 @@ edition = "2018"
 [dependencies]
 arrayvec = "0.6"
 slicebuffer = { path = "../slicebuffer" }
-autoparse-derive = { path = "../autoparse-derive" }

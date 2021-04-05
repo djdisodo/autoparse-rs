@@ -1,4 +1,4 @@
-use crate::{Parsable, ParseError};
+use autoparse::{Parsable, ParseError};
 use slicebuffer::Buf;
 
 pub struct Space {

@@ -1,10 +1,11 @@
 #![feature(extend_one)]
+
+extern crate autoparse as autoparse;
+
 use proc_macro2::{Ident, Span};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{Data, DataEnum, DataStruct, DeriveInput, Fields, Generics, ImplItem, ItemImpl, Meta, NestedMeta, Path, Token, punctuated::Punctuated, token::{Brace, Comma}};
-
-extern crate syn;
 
 #[proc_macro_derive(Parsable, attributes(parse))]
 pub fn derive_parsable(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
@@ -55,12 +56,12 @@ fn generate_code_for_fields<'a>(fields: &'a Fields, self_constructor: TokenStrea
                 let field_name = field.ident.as_ref().unwrap();
                 let field_type = &field.ty;
                 token_stream_parse.extend_one(quote! {
-                    let (#field_name, r): (#field_type, _) = crate::autoparse::Parsable::try_parse(buffer)?;
+                    let (#field_name, r): (#field_type, _) = autoparse::Parsable::try_parse(buffer)?;
                     *read += r;
                 });
                 fields.push(field_name);
                 token_stream_write.extend_one(quote! {
-                    crate::autoparse::Parsable::write(#self_accesss #field_name, buffer);
+                    autoparse::Parsable::write(#self_accesss #field_name, buffer);
                 });
             }
             return (quote! {
@@ -73,7 +74,7 @@ fn generate_code_for_fields<'a>(fields: &'a Fields, self_constructor: TokenStrea
                         },
                         *read
                     ))
-                })().map_err(| e: crate::autoparse::ParseError<#parse> | e.advance(*read))
+                })().map_err(| e: autoparse::ParseError<#parse> | e.advance(*read))
             }, token_stream_write, types, quote! { { #fields } });
         },
         Fields::Unnamed(fields_unnamed) => {
@@ -87,14 +88,14 @@ fn generate_code_for_fields<'a>(fields: &'a Fields, self_constructor: TokenStrea
                 let _field_name = Ident::new(&format!("_{}", field_count), Span::call_site());
                 let field_type = &field.ty;
                 token_stream_parse.extend_one(quote! {
-                    let (#_field_name, r): (#field_type, _) = crate::autoparse::Parsable::try_parse(buffer)?;
+                    let (#_field_name, r): (#field_type, _) = autoparse::Parsable::try_parse(buffer)?;
                     *read += r;
                 });
                 fields.push(_field_name);
                 let field_name = syn::Index::from(field_count);
                 
                 token_stream_write.extend_one(quote! {
-                    crate::autoparse::Parsable::write(#self_accesss #field_name, buffer);
+                    autoparse::Parsable::write(#self_accesss #field_name, buffer);
                 });
                 field_count += 1;
             }
@@ -108,11 +109,11 @@ fn generate_code_for_fields<'a>(fields: &'a Fields, self_constructor: TokenStrea
                         ),
                         *read
                     ))
-                })().map_err(| e: crate::autoparse::ParseError<#parse> | e.advance(*read))
+                })().map_err(| e: autoparse::ParseError<#parse> | e.advance(*read))
             }, token_stream_write, types, quote! { (#fields,) });
 
         },
-        Fields::Unit => return (quote! { let result: Result<_, crate::autoparse::ParseError<#parse>> = Ok((#self_constructor, 0)); result }, quote! {}, vec![], quote! {})
+        Fields::Unit => return (quote! { let result: Result<_, autoparse::ParseError<#parse>> = Ok((#self_constructor, 0)); result }, quote! {}, vec![], quote! {})
     };
 
 }
@@ -122,7 +123,7 @@ fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &
     let (token_stream_parse, token_stream_write, _, _) = generate_code_for_fields(&data_struct.fields, quote! { Self }, quote! { &self. }, parse);
 
     let items = quote! {
-        fn try_parse(buffer: &mut &[#parse]) -> Result<(Self, usize), crate::autoparse::ParseError<#parse>> {
+        fn try_parse(buffer: &mut &[#parse]) -> Result<(Self, usize), autoparse::ParseError<#parse>> {
             #token_stream_parse
         }
 
@@ -143,7 +144,7 @@ fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &
         unsafety: None,
         impl_token: Token![impl](span),
         generics: generics.clone(),
-        trait_: Some((None, syn::parse2(quote! { crate::autoparse::Parsable<#parse> }).unwrap(), Token![for](span))),
+        trait_: Some((None, syn::parse2(quote! { autoparse::Parsable<#parse> }).unwrap(), Token![for](span))),
         self_ty: Box::new(syn::parse2(quote! { #ident<#type_args> }).unwrap()),
         brace_token: Brace { span },
         items: vec![ImplItem::Verbatim(items)] 
@@ -156,7 +157,7 @@ fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struct: &
 
 fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &DataEnum, parse: &Path) -> TokenStream2 {
     let mut token_stream_parse = quote! {
-        let mut error: crate::autoparse::ParseError<#parse> = Default::default();
+        let mut error: autoparse::ParseError<#parse> = Default::default();
     };
     let mut token_stream_write_match: Punctuated<TokenStream2, Comma> = Punctuated::new();
 
@@ -200,7 +201,7 @@ fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &Data
         });
     }
     let items = quote! {
-        fn try_parse(buffer: &mut &[#parse]) -> Result<(Self, usize), crate::autoparse::ParseError<#parse>> {
+        fn try_parse(buffer: &mut &[#parse]) -> Result<(Self, usize), autoparse::ParseError<#parse>> {
             #token_stream_parse
             Err(error)
         }
@@ -224,7 +225,7 @@ fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &Data
         unsafety: None,
         impl_token: Token![impl](span),
         generics: generics.clone(),
-        trait_: Some((None, syn::parse2(quote! { crate::autoparse::Parsable<#parse> }).unwrap(), Token![for](span))),
+        trait_: Some((None, syn::parse2(quote! { autoparse::Parsable<#parse> }).unwrap(), Token![for](span))),
         self_ty: Box::new(syn::parse2(quote! { #ident<#type_args> }).unwrap()),
         brace_token: Brace { span },
         items: vec![ImplItem::Verbatim(items)] 
