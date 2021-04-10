@@ -9,4 +9,4 @@ edition = "2018"
 [dependencies]
 autoparse = { path = "../autoparse/" }
 autoparse-derive = { path = "../autoparse-derive/" }
-slicebuffer = { path = "../slicebuffer/" }
+dede = "0.1" 

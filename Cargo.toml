@@ -4,5 +4,4 @@ members = [
 	"autoparse",
 	"autoparse-general",
 	"autoparse-derive",
-	"slicebuffer"
 ]

@@ -1,16 +1,30 @@
-use autoparse::{Parsable, ParseError};
-use slicebuffer::Buf;
+//! for parsing spaces(blank)
+//! TODO `MayNotSpace` and `MayNotSpaced`
+use autoparse::{Parsable, ParseError, ParseStream, Writable};
+use autoparse_derive::*;
+use dede::*;
 
+
+/// parses space like `' '`, `'\t'`, `'\r'`, `'\n'`
+#[derive(Debug, Clone)]
 pub struct Space {
-	spaces: Vec<char>
+	pub spaces: Vec<char>
+}
+
+impl Default for Space {
+	fn default() -> Self {
+		Self {
+			spaces: vec![' ']
+		}
+	}
 }
 
 impl Parsable<char> for Space {
-	fn try_parse(buffer: &mut &[char]) -> Result<(Self, usize), ParseError<char>> {
+	fn try_parse_no_rewind(stream: &mut impl ParseStream<char>) -> Result<(Self, usize), ParseError<char>> {
 		let mut spaces = Vec::new();
 		while match {
 			let mut c = ['\0'; 1];
-			buffer.read(&mut c);
+			stream.read(&mut c);
 			c[0]
 		} {
 			
@@ -31,17 +45,54 @@ impl Parsable<char> for Space {
 			},read))
 		}
 	}
+}
 
-	fn write(&self, buffer: &mut Vec<char>) {
-		buffer.extend_from_slice(&self.spaces);
+impl Writable<char> for Space {
+	fn write(&self, stream: &mut Vec<char>) {
+		stream.extend_from_slice(&self.spaces);
 	}
 }
 
+/// optional space
 pub type MaySpace = Option<Space>;
-#[derive(autoparse_derive::Parsable)]
-#[parse(char)]
-pub struct MaySpaced<T: Parsable<char>> {
-	head: MaySpace,
-	inner: T,
-	tail: MaySpace
+
+pub type MayNotSpace = MaySpace;
+
+/// tailing space for `T`
+#[derive(Parsable, Writable, Debug, Clone, Deref, DerefMut)]
+#[autoparse_for(char)]
+pub struct Spaced<T: Parsable<char>> {
+	#[deref]
+	pub inner: T,
+	pub space: Space
 }
+
+impl<T: Parsable<char>> From<T> for Spaced<T> {
+	fn from(inner: T) -> Self {
+		Self {
+			inner,
+			space: Default::default()
+		}
+	}
+}
+
+
+/// tailing optional space for `T`
+#[derive(Parsable, Writable, Debug, Clone, Deref, DerefMut)]
+#[autoparse_for(char)]
+pub struct MaySpaced<T: Parsable<char>> {
+	#[deref]
+	pub inner: T,
+	pub space: MaySpace
+}
+
+impl<T: Parsable<char>> From<T> for MaySpaced<T> {
+	fn from(inner: T) -> Self {
+		Self {
+			inner,
+			space: Default::default()
+		}
+	}
+}
+
+pub type MayNotSpaced<T> = MaySpaced<T>;

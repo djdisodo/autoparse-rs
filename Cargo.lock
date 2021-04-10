@@ -13,7 +13,6 @@ name = "autoparse"
 version = "0.1.0"
 dependencies = [
  "arrayvec",
- "slicebuffer",
 ]
 
 [[package]]
@@ -32,7 +31,18 @@ version = "0.1.0"
 dependencies = [
  "autoparse",
  "autoparse-derive",
- "slicebuffer",
+ "dede",
+]
+
+[[package]]
+name = "dede"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eb09e2aca5d4d11c55b242a2602a4f34a4a27e1e78f203d99d3bf125cc755ab9"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -52,10 +62,6 @@ checksum = "c3d0b9745dc2debf507c8422de05d7226cc1f0644216dfdfead988f9b1ab32a7"
 dependencies = [
  "proc-macro2",
 ]
-
-[[package]]
-name = "slicebuffer"
-version = "0.1.0"
 
 [[package]]
 name = "syn"
