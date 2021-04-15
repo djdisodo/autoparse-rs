@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use autoparse::{Parsable, ParseError, ParseStream, Writable};
 use super::{MaySpaced, MayNotSpaced, MaySpace, MayNotSpace};
 use dede::*;
-
+use std::fmt::Debug;
 #[derive(Debug, Clone, Deref, DerefMut, Default)]
 pub struct Punchuated<V: Writable<char>, D: Writable<char> + Default> {
 	#[deref]
@@ -11,7 +11,7 @@ pub struct Punchuated<V: Writable<char>, D: Writable<char> + Default> {
 	delimiter: PhantomData<D>
 }
 
-impl <V: Parsable<char>, D: Parsable<char> + Default> Parsable<char> for Punchuated<V, D> {
+impl <V: Parsable<char> + Debug, D: Parsable<char> + Default + Debug> Parsable<char> for Punchuated<V, D> {
 	fn try_parse_no_rewind(stream: &mut impl ParseStream<char>) -> Result<(Self, usize), ParseError<char>> {
 		let mut elements: Vec<V> = vec![];
 		let mut read = 0;

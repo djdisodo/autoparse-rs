@@ -32,13 +32,14 @@ dependencies = [
  "autoparse",
  "autoparse-derive",
  "dede",
+ "snailquote",
 ]
 
 [[package]]
 name = "dede"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb09e2aca5d4d11c55b242a2602a4f34a4a27e1e78f203d99d3bf125cc755ab9"
+checksum = "2616ab12625fc1a9385fa05174273dc0ede29a5634b3220387c96389b53dada1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -46,10 +47,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "example-json"
+version = "0.1.0"
+dependencies = [
+ "autoparse",
+ "autoparse-derive",
+ "autoparse-general",
+]
+
+[[package]]
 name = "proc-macro2"
-version = "1.0.24"
+version = "1.0.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e0704ee1a7e00d7bb417d0770ea303c1bccbabf0ef1667dae92b5967f5f8a71"
+checksum = "a152013215dca273577e18d2bf00fa862b89b24169fb78c4c95aeb07992c9cec"
 dependencies = [
  "unicode-xid",
 ]
@@ -64,10 +74,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "syn"
-version = "1.0.67"
+name = "snailquote"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6498a9efc342871f91cc2d0d694c674368b4ceb40f62b65a7a08c3792935e702"
+checksum = "f34b729d802f52194598858ac852c3fb3b33f6e026cd03195072ccb7bf3fc810"
+dependencies = [
+ "thiserror",
+ "unicode_categories",
+]
+
+[[package]]
+name = "syn"
+version = "1.0.69"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48fe99c6bd8b1cc636890bcc071842de909d902c81ac7dab53ba33c421ab8ffb"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -75,7 +95,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "thiserror"
+version = "1.0.24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e0f4a65597094d4483ddaed134f409b2cb7c1beccf25201a9f73c719254fa98e"
+dependencies = [
+ "thiserror-impl",
+]
+
+[[package]]
+name = "thiserror-impl"
+version = "1.0.24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7765189610d8241a44529806d6fd1f2e0a08734313a35d5b3a556f92b381f3c0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "unicode-xid"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7fe0bb3479651439c9112f72b6c505038574c9fbb575ed1bf3b797fa39dd564"
+
+[[package]]
+name = "unicode_categories"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39ec24b3121d976906ece63c9daad25b85969647682eee313cb5779fdd69e14e"

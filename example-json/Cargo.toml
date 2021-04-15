@@ -1,5 +1,5 @@
 [package]
-name = "autoparse-general"
+name = "example-json"
 version = "0.1.0"
 authors = ["sodo <djdisodo@gmail.com>"]
 edition = "2018"
@@ -8,6 +8,5 @@ edition = "2018"
 
 [dependencies]
 autoparse = { path = "../autoparse/" }
+autoparse-general = { path = "../autoparse-general/" }
 autoparse-derive = { path = "../autoparse-derive/" }
-dede = "0.1"
-snailquote = "0.3"

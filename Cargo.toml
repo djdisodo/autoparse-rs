@@ -4,4 +4,5 @@ members = [
 	"autoparse",
 	"autoparse-general",
 	"autoparse-derive",
+	"example-json"
 ]

@@ -1,11 +1,13 @@
+mod bracket;
 mod brace;
 
+pub use bracket::*;
 pub use brace::*;
 
 #[macro_export]
 macro_rules! token {
 	($id:ident, $raw:expr) => {
-		#[derive(Clone, Debug)]
+		#[derive(Clone, Debug, Default)]
 		pub struct $id;
 
 		impl $id {
@@ -34,8 +36,9 @@ macro_rules! token {
 	}
 }
 
-token!(Comma, ",");
+token!(Bang, "!");
 token!(Colon, ":");
+token!(Comma, ",");
+token!(Dash, "-");
 token!(Dot, ".");
-
-
+token!(SnailQuote, "\"");
