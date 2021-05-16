@@ -15,14 +15,14 @@ macro_rules! token {
 		}
 
 		impl autoparse::Parsable<char> for $id {
-			fn try_parse_no_rewind(stream: &mut impl autoparse::ParseStream<char>) -> Result<(Self, usize), autoparse::ParseError<char>> {
+			fn try_parse_no_rewind(stream: &mut impl autoparse::ParseStream<char>, position: usize) -> Result<(Self, usize), autoparse::ParseError<char>> {
 				let token: Vec<char> = Self::TOKEN.chars().collect();
 				let mut check = vec![0 as char; token.len()];
 				autoparse::ParseStream::<char>::read(stream, &mut check);
 				if check == token {
 					Ok((Self, Self::TOKEN.len()))
 				} else {
-					Err(autoparse::ParseError::new([token].into(), 0))
+					Err(autoparse::ParseError::new([token].into(), position))
 				}
 			}
 		}

@@ -129,6 +129,7 @@ pub fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &
 			} {
 				Ok((parsed, read)) => return Ok((parsed, read)),
 				Err(e) => {
+					let e: autoparse::ParseError<#autoparse_for> = e;
 					*stream = stream_fork;
 					(*error).extend(e.expections)
 				}

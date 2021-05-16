@@ -8,7 +8,7 @@ pub struct UnsignedInteger {
 }
 
 impl Parsable<char> for UnsignedInteger {
-	fn try_parse_no_rewind(stream: &mut impl ParseStream<char>) -> Result<(Self, usize), ParseError<char>> {
+	fn try_parse_no_rewind(stream: &mut impl ParseStream<char>, position: usize) -> Result<(Self, usize), ParseError<char>> {
 		let mut literal = vec![];
 		let mut read = 0;
 		let mut reader = ['\0'];
@@ -28,7 +28,7 @@ impl Parsable<char> for UnsignedInteger {
 			}, read))	
 		} else {
 			//TODO expected numeric
-			Err(ParseError::new(vec![vec!['0']], 0))
+			Err(ParseError::new(vec![vec!['0']], position))
 		}
 	}
 }
@@ -53,6 +53,7 @@ pub enum Unsigned {
 	Float(UnsignedFloat),
 	Integer(UnsignedInteger)
 }
+
 
 #[derive(Clone, Debug, Writable, Parsable)]
 #[autoparse_for(char)]

@@ -5,7 +5,17 @@
     <cargoProject FILE="$PROJECT_DIR$/autoparse/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6f49b0e2-011d-44c9-90f2-377e6fe26d20" name="Default Changelist" comment="" />
+    <list default="true" id="6f49b0e2-011d-44c9-90f2-377e6fe26d20" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/autoparse.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/autoparse.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-derive/src/parsable.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-derive/src/parsable.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-general/src/literal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/literal.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-general/src/numeric.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/numeric.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-general/src/punchuated.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/punchuated.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-general/src/space.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/space.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-general/src/token/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/token/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-json/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/example-json/src/main.rs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -18,6 +28,9 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="rib03m4r" />
   </component>
@@ -29,6 +42,7 @@
     </option>
   </component>
   <component name="ProjectId" id="1qNkRsLPrbzYk0sTF5YJn7xkvsw" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -45,21 +59,11 @@
   <component name="RunAnythingCache">
     <option name="myCommands">
       <command value="cargo update" />
+      <command value="cargo build --pretty expanded" />
       <command value="cargo build" />
     </option>
   </component>
   <component name="RunManager" selected="Cargo.build [autoparse]">
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="build [autoparse]" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="build" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -93,12 +97,15 @@
     <recent_temporary>
       <list>
         <item itemvalue="Cargo.build [autoparse]" />
+        <item itemvalue="Cargo.build [autoparse]" />
+        <item itemvalue="Cargo.build [autoparse]" />
         <item itemvalue="Cargo.update [autoparse]" />
       </list>
     </recent_temporary>
   </component>
   <component name="RustProjectSettings">
     <option name="toolchainHomeDirectory" value="$PROJECT_DIR$/../.cargo/bin" />
+    <option name="version" value="2" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -136,9 +143,9 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state width="1323" height="179" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1616950111668" />
-    <state x="339" y="162" width="672" height="677" key="run.anything.popup" timestamp="1616950111524">
+    <state x="339" y="162" width="672" height="677" key="run.anything.popup" timestamp="1621182717854">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state x="339" y="162" width="672" height="677" key="run.anything.popup/0.0.1366.728@0.0.1366.728" timestamp="1616950111524" />
+    <state x="339" y="162" width="672" height="677" key="run.anything.popup/0.0.1366.728@0.0.1366.728" timestamp="1621182717854" />
   </component>
 </project>

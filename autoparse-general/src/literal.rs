@@ -19,14 +19,14 @@ impl Writable<char> for Literal {
 }
 
 impl Parsable<char> for Literal {
-	fn try_parse_no_rewind(stream: &mut impl ParseStream<char>) -> Result<(Self, usize), ParseError<char>> {
+	fn try_parse_no_rewind(stream: &mut impl ParseStream<char>, position: usize) -> Result<(Self, usize), ParseError<char>> {
 		let mut buffer = vec![];
 		let mut reader = ['\0'];
 		let mut read = 1;
 		
-		if let Err(e) = token::SnailQuote::try_parse_no_rewind(stream) {
+		if let Err(e) = token::SnailQuote::try_parse_no_rewind(stream, position) {
 			return Err(e);
-		}	
+		}
 		while {
 			read += stream.read(&mut reader);
 			reader[0] != '\"'

@@ -20,7 +20,7 @@ impl Default for Space {
 }
 
 impl Parsable<char> for Space {
-	fn try_parse_no_rewind(stream: &mut impl ParseStream<char>) -> Result<(Self, usize), ParseError<char>> {
+	fn try_parse_no_rewind(stream: &mut impl ParseStream<char>, position: usize) -> Result<(Self, usize), ParseError<char>> {
 		let mut spaces = Vec::new();
 		let mut stream_fork = stream.clone();
 		while match {
@@ -41,7 +41,7 @@ impl Parsable<char> for Space {
 		if spaces.is_empty() {
 			Err(ParseError::new([
 								vec![' '], vec!['\t'], vec!['\r'], vec!['\n']
-			].into(), 0))
+			].into(), position))
 		} else {
 			let read = spaces.len();
 			Ok((Self {
