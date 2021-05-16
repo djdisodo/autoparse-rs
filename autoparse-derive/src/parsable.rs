@@ -15,22 +15,20 @@ fn generate_code_for_fields<'a>(fields: &'a Fields, self_constructor: TokenStrea
 				let field_name = field.ident.as_ref().unwrap();
 				let field_type = &field.ty;
 				token_stream_parse.extend_one(quote! {
-					let (#field_name, r): (#field_type, _) = autoparse::Parsable::try_parse_no_rewind(stream)?;
-					*read += r;
+					let (#field_name, r): (#field_type, _) = autoparse::Parsable::try_parse_no_rewind(stream, position + read)?;
+					read += r;
 				});
 				fields.push(field_name);
 			}
 			return (quote! {
-				let read = &mut 0;
-				(|| {
-					#token_stream_parse
-					Ok((
-						#self_constructor {
-							#fields
-						},
-						*read
-					))
-				})().map_err(| e: autoparse::ParseError<#autoparse_for> | e.advance(*read))
+				let mut read = 0;
+				#token_stream_parse
+				Ok((
+					#self_constructor {
+						#fields
+					},
+					read
+				))
 			}, types);
 		},
 		Fields::Unnamed(fields_unnamed) => {
@@ -42,23 +40,21 @@ fn generate_code_for_fields<'a>(fields: &'a Fields, self_constructor: TokenStrea
 				let field_name = Ident::new(&format!("_{}", field_count), Span::call_site());
 				let field_type = &field.ty;
 				token_stream_parse.extend_one(quote! {
-					let (#field_name, r): (#field_type, _) = autoparse::Parsable::try_parse_no_rewind(stream)?;
-					*read += r;
+					let (#field_name, r): (#field_type, _) = autoparse::Parsable::try_parse_no_rewind(stream, position + read)?;
+					read += r;
 				});
 				fields.push(field_name);
 				field_count += 1;
 			}
 			return (quote! {
-				let read = &mut 0;
-				(|| {
-					#token_stream_parse
-					Ok((
-						#self_constructor (
-							#fields
-						),
-						*read
-					))
-				})().map_err(| e: autoparse::ParseError<#autoparse_for> | e.advance(*read))
+				let mut read = 0;
+				#token_stream_parse
+				Ok((
+					#self_constructor (
+						#fields
+					),
+					read
+				))	
 			}, types);
 
 		},
@@ -72,7 +68,7 @@ pub fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struc
 	let (token_stream_parse, /* field_type */_ ) = generate_code_for_fields(&data_struct.fields, quote! { Self }, autoparse_for);
 
 	let items = quote! {
-		fn try_parse_no_rewind(stream: &mut impl autoparse::ParseStream<#autoparse_for>) -> Result<(Self, usize), autoparse::ParseError<#autoparse_for>> {
+		fn try_parse_no_rewind(stream: &mut impl autoparse::ParseStream<#autoparse_for>, position: usize) -> Result<(Self, usize), autoparse::ParseError<#autoparse_for>> {
 			#token_stream_parse
 		}
 	};
@@ -140,7 +136,7 @@ pub fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &
 		});
 	}
 	let items = quote! {
-		fn try_parse_no_rewind(stream: &mut impl autoparse::ParseStream<#autoparse_for>) -> Result<(Self, usize), autoparse::ParseError<#autoparse_for>> {
+		fn try_parse_no_rewind(stream: &mut impl autoparse::ParseStream<#autoparse_for>, position: usize) -> Result<(Self, usize), autoparse::ParseError<#autoparse_for>> {
 			#token_stream_parse
 			Err(error)
 		}

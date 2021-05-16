@@ -9,8 +9,6 @@ pub trait ParseStream<T: Sized + Clone>: Clone {
 	fn advance(&mut self, amount: usize);
 	
 	fn take(&mut self, amount: usize) -> Self;
-
-	fn get_span(&self) -> usize;
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -49,18 +47,14 @@ impl<'a, T: Sized + Copy> ParseStream<T> for SimpleParseStream<'a, T> {
 		self.advance(amount);
 		take
 	}
-
-	fn get_span(&self) -> usize {
-		self.position
-	}
 }
 
 pub trait ParseTo<T: Sized + Clone, U: Parsable<T>> {
-	fn try_parse_to(&mut self) -> Result<(U, usize), ParseError<T>>;
+	fn try_parse_to(&mut self, position: usize) -> Result<(U, usize), ParseError<T>>;
 }
 
 impl<T: Sized + Clone, U: ParseStream<T>, V: Parsable<T>> ParseTo<T, V> for U {
-	fn try_parse_to(&mut self) -> Result<(V, usize), ParseError<T>> {
-		V::try_parse(self)
+	fn try_parse_to(&mut self, position: usize) -> Result<(V, usize), ParseError<T>> {
+		V::try_parse(self, position)
 	}
 }

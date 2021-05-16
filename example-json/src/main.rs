@@ -37,5 +37,5 @@ pub fn main() {
     let json = std::fs::read_to_string("test.json").unwrap();
     let collected: Vec<char> = json.chars().collect();
     let mut stream = SimpleParseStream::new(&collected);
-    println!("--->{:?}", JsonValue::try_parse(&mut stream));
+    println!("{:#?}", JsonValue::try_parse(&mut stream));
 }
