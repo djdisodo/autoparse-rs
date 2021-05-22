@@ -125,7 +125,7 @@ pub fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &
 			let stream_fork;
 			match {
 				stream_fork = stream.clone();
-				#token_stream_parse_variant
+				(|| { #token_stream_parse_variant })()
 			} {
 				Ok((parsed, read)) => return Ok((parsed, read)),
 				Err(e) => {

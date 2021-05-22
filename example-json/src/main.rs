@@ -3,6 +3,20 @@ use autoparse_derive::*;
 
 #[derive(Clone, Debug, Writable, Parsable)]
 #[autoparse_for(char)]
+pub enum Tokens {
+    BraceOpen(token::BraceOpen),
+    BraceClose(token::BraceClose),
+    BrackedOpen(token::BracketOpen),
+    BracketClose(token::BracketClose),
+    Comma(token::Comma),
+    Colon(token::Colon),
+    Signed(Signed),
+    Space(Space),
+    Literal(Literal)
+}
+
+#[derive(Clone, Debug, Writable, Parsable)]
+#[autoparse_for(char)]
 pub struct JsonKeyValue {
     pub key: MayNotSpaced<Literal>,
     pub colon: MaySpaced<token::Colon>,
@@ -37,5 +51,14 @@ pub fn main() {
     let json = std::fs::read_to_string("test.json").unwrap();
     let collected: Vec<char> = json.chars().collect();
     let mut stream = SimpleParseStream::new(&collected);
-    println!("{:#?}", JsonValue::try_parse(&mut stream, 0));
+    let mut pos = 0;
+    loop {
+        let result = Tokens::try_parse(&mut stream, pos);
+        println!("{:#?}", result);
+        if let Ok((_, read)) = result {
+            pos += read;
+        } else {
+            break
+        }
+    }
 }

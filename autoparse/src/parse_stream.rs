@@ -1,45 +1,65 @@
-use std::cmp::min;
+use std::{cmp::min, collections::VecDeque};
 use crate::{Parsable, ParseError};
 
-pub trait ParseStream<T: Sized + Clone>: Clone {
-	fn has_remaining(&self) -> bool;
-	
-	fn read(&mut self, other: &mut [T]) -> usize;
-
-	fn advance(&mut self, amount: usize);
-	
-	fn take(&mut self, amount: usize) -> Self;
+pub struct ParseStream<T: Sized + Clone, U: Iterator<Item=T>> {
+	inner: U,
+	buffer: VecDeque<T>,
+	buffer_position: usize,
+	buffering: bool
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct SimpleParseStream<'a, T: Sized + Copy> {
-	inner: &'a [T],
-	position: usize
-}
+impl<T: Sized + Copy, U: Iterator<Item=T>> ParseStream<T, U> {
 
-impl<'a, T: Sized + Copy> SimpleParseStream<'a, T> {
-	pub fn new(inner: &'a [T]) -> Self {
-		Self {
-			inner,
-			position: 0
+	fn set_rewind_point(&mut self) {
+		if self.buffering == true {
+			for _ in 0..buffer_position {
+				self.buffer.pop_front().unwrap();
+			}
+			self.buffer_position = 0;
+		} else {
+			self.buffering = true;
+			self.buffer.clear();
 		}
 	}
-}
 
-impl<'a, T: Sized + Copy> ParseStream<T> for SimpleParseStream<'a, T> {
-	fn has_remaining(&self) -> bool {
-		self.inner.len() > self.position
+	fn unset_rewind_point(&mut self) {
+		for _ in 0..buffer_position {
+			self.buffer.pop_front().unwrap();
+		}
+		self.buffer_position = 0;
+		self.buffering = false;
+	}
+
+	fn rewind(&mut self) {
+		self.buffer_position = 0;
+		self.buffering = false;
+	}
+
+	fn next(&mut self) -> Option<T> {
+		return if self.buffering {
+			if let Some(next) = self.buffer.get(self.buffer_position) {
+				self.buffer_position += 1;
+				next
+			} else {
+				if let Some(next) = self.inner.next() {
+					self.buffer.push_back(next.clone());
+					self.buffer_position += 1;
+					next
+				} else {
+					None
+				}
+			}
+		} else {
+			self.buffer_position += 1;
+			self.buffer.next()
+		}
 	}
 
 	fn read(&mut self, other: &mut [T]) -> usize  {
-		let len = min(self.inner.len() - self.position, other.len());
-		(&mut other[..len]).copy_from_slice(&(*self.inner)[self.position..][..len]);
-		self.advance(len);
-		len
 	}
 
 	fn advance(&mut self, amount: usize) {
-		self.position = min(self.position + amount, self.inner.len());
+	 
 	}
 
 	fn take(&mut self, amount: usize) -> Self {
