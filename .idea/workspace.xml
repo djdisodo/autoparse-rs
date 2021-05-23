@@ -6,15 +6,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6f49b0e2-011d-44c9-90f2-377e6fe26d20" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/autoparse.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/autoparse.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/autoparse-derive/src/parsable.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-derive/src/parsable.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/autoparse-general/src/literal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/literal.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/autoparse-general/src/numeric.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/numeric.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/autoparse-general/src/punchuated.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/punchuated.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/autoparse-general/src/space.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/space.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/autoparse-general/src/token/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/token/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example-json/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/example-json/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse/src/parse_stream.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse/src/parse_stream.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,6 +109,7 @@
       <option name="presentableId" value="Default" />
       <updated>1616927430983</updated>
       <workItem from="1616927432205" duration="14453000" />
+      <workItem from="1621664795940" duration="2202000" />
     </task>
     <servers />
   </component>
