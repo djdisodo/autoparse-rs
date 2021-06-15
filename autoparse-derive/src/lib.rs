@@ -4,6 +4,7 @@ extern crate autoparse as autoparse;
 
 mod parsable;
 mod writable;
+mod token_set;
 
 use parsable::*;
 use writable::*;
