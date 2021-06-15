@@ -5,19 +5,19 @@ pub struct ParseStream<T: Sized + Clone, U: Iterator<Item=T>> {
 	inner: U,
 	buffer: VecDeque<T>,
 	buffer_position: usize,
-	buffering: bool
+	storing: bool
 }
 
 impl<T: Sized + Copy, U: Iterator<Item=T>> ParseStream<T, U> {
 
 	fn set_rewind_point(&mut self) {
-		if self.buffering == true {
+		if self.storing == true {
 			for _ in 0..buffer_position {
 				self.buffer.pop_front().unwrap();
 			}
 			self.buffer_position = 0;
 		} else {
-			self.buffering = true;
+			self.storing = true;
 			self.buffer.clear();
 		}
 	}
@@ -27,31 +27,28 @@ impl<T: Sized + Copy, U: Iterator<Item=T>> ParseStream<T, U> {
 			self.buffer.pop_front().unwrap();
 		}
 		self.buffer_position = 0;
-		self.buffering = false;
+		self.storing = false;
 	}
 
 	fn rewind(&mut self) {
 		self.buffer_position = 0;
-		self.buffering = false;
+		self.storing = false;
 	}
 
 	fn next(&mut self) -> Option<T> {
-		return if self.buffering {
-			if let Some(next) = self.buffer.get(self.buffer_position) {
-				self.buffer_position += 1;
-				next
-			} else {
-				if let Some(next) = self.inner.next() {
+		return if let Some(next) = self.buffer.get(self.buffer_position) {
+			self.buffer_position += 1;
+			Some(next.clone())
+		} else {
+			if let Some(next) = self.inner.next() {
+				if self.storing {
 					self.buffer.push_back(next.clone());
 					self.buffer_position += 1;
-					next
-				} else {
-					None
 				}
+				Some(next)
+			} else {
+				None
 			}
-		} else {
-			self.buffer_position += 1;
-			self.buffer.next()
 		}
 	}
 
