@@ -68,7 +68,7 @@ pub fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struc
 	let (token_stream_parse, /* field_type */_ ) = generate_code_for_fields(&data_struct.fields, quote! { Self }, autoparse_for);
 
 	let items = quote! {
-		fn try_parse_no_rewind(stream: &mut impl autoparse::ParseStream<#autoparse_for>, position: usize) -> Result<(Self, usize), autoparse::ParseError<#autoparse_for>> {
+		fn try_parse_no_rewind(stream: &mut autoparse::ParseStream<#autoparse_for, impl Iterator<Item=#autoparse_for>>, position: usize) -> Result<(Self, usize), autoparse::ParseError<#autoparse_for>> {
 			#token_stream_parse
 		}
 	};
@@ -107,6 +107,7 @@ pub fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struc
 pub fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &DataEnum, autoparse_for: &Path) -> TokenStream2 {
 	let mut token_stream_parse = quote! {
 		let mut error: autoparse::ParseError<#autoparse_for> = Default::default();
+		stream.set_rewind_point();
 	};
 
 	/* let mut field_types = vec![]; */
@@ -122,22 +123,22 @@ pub fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &
 		/* field_types.extend(field_types_variant); */
 
 		token_stream_parse.extend_one(quote! {
-			let stream_fork;
+			let mut stream_temp = autoparse::ParseStream::from(stream);
 			match {
-				stream_fork = stream.clone();
-				(|| { #token_stream_parse_variant })()
+				(| stream | { #token_stream_parse_variant })(&mut stream_temp)
 			} {
 				Ok((parsed, read)) => return Ok((parsed, read)),
 				Err(e) => {
 					let e: autoparse::ParseError<#autoparse_for> = e;
-					*stream = stream_fork;
-					(*error).extend(e.expections)
+					(*error).extend(e.expections);
+					stream = stream_temp.into_inner();
+					stream.rewind();
 				}
 			}
 		});
 	}
 	let items = quote! {
-		fn try_parse_no_rewind(stream: &mut impl autoparse::ParseStream<#autoparse_for>, position: usize) -> Result<(Self, usize), autoparse::ParseError<#autoparse_for>> {
+		fn try_parse_no_rewind(mut stream: &mut autoparse::ParseStream<#autoparse_for, impl Iterator<Item=#autoparse_for>>, position: usize) -> Result<(Self, usize), autoparse::ParseError<#autoparse_for>> {
 			#token_stream_parse
 			Err(error)
 		}

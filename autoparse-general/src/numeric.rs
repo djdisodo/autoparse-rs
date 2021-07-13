@@ -8,19 +8,19 @@ pub struct UnsignedInteger {
 }
 
 impl Parsable<char> for UnsignedInteger {
-	fn try_parse_no_rewind(stream: &mut impl ParseStream<char>, position: usize) -> Result<(Self, usize), ParseError<char>> {
+	fn try_parse_no_rewind(stream: &mut ParseStream<char, impl Iterator<Item=char>>, position: usize) -> Result<(Self, usize), ParseError<char>> {
 		let mut literal = vec![];
 		let mut read = 0;
 		let mut reader = ['\0'];
-		let mut stream_fork = stream.clone();
+		stream.set_rewind_point();
 		while {
 			read += stream.read(&mut reader);
 			reader[0].is_numeric()
 		} {
 			literal.push(reader[0]);
-			stream_fork = stream.clone()
+			stream.set_rewind_point();
 		}
-		*stream = stream_fork;
+		stream.rewind();
 		read -= 1;
 		if !literal.is_empty() {
 			Ok((Self {

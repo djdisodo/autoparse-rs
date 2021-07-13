@@ -12,7 +12,7 @@ pub struct Punchuated<V: Writable<char>, D: Writable<char> + Default> {
 }
 
 impl <V: Parsable<char> + Debug, D: Parsable<char> + Default + Debug> Parsable<char> for Punchuated<V, D> {
-	fn try_parse_no_rewind(stream: &mut impl ParseStream<char>, position: usize) -> Result<(Self, usize), ParseError<char>> {
+	fn try_parse_no_rewind(stream: &mut ParseStream<char, impl Iterator<Item=char>>, position: usize) -> Result<(Self, usize), ParseError<char>> {
 		let mut elements: Vec<V> = vec![];
 		let mut read = 0;
 		if let Ok((Some(value), r)) = Option::<MayNotSpaced<V>>::try_parse(stream, position) {

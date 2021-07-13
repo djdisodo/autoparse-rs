@@ -19,7 +19,7 @@ impl Writable<char> for Literal {
 }
 
 impl Parsable<char> for Literal {
-	fn try_parse_no_rewind(stream: &mut impl ParseStream<char>, position: usize) -> Result<(Self, usize), ParseError<char>> {
+	fn try_parse_no_rewind(stream: &mut ParseStream<char, impl Iterator<Item=char>>, position: usize) -> Result<(Self, usize), ParseError<char>> {
 		let mut buffer = vec![];
 		let mut reader = ['\0'];
 		let mut read = 1;

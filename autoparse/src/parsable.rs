@@ -2,23 +2,26 @@ use crate::ParseError;
 use crate::ParseStream;
 use crate::Writable;
 
-pub trait Parsable<T: Clone + Sized>: Writable<T> {
-	fn try_parse_no_rewind(stream: &mut impl ParseStream<T>, position: usize) -> Result<(Self, usize), ParseError<T>>;
+pub trait Parsable<T: Copy + Sized>: Writable<T> {
+	fn try_parse_no_rewind(stream: &mut ParseStream<T, impl Iterator<Item=T>>, position: usize) -> Result<(Self, usize), ParseError<T>>;
 
-	fn try_parse(stream: &mut impl ParseStream<T>, position: usize) -> Result<(Self, usize), ParseError<T>> {
-		let stream_clone = stream.clone();
-		match Self::try_parse_no_rewind(stream, position) {
-			Ok(parsed) => Ok(parsed),
+	fn try_parse(mut stream: &mut ParseStream<T, impl Iterator<Item=T>>, position: usize) -> Result<(Self, usize), ParseError<T>> {
+		stream.set_rewind_point();
+		match Self::try_parse_no_rewind(&mut ParseStream::from(&mut stream), position) {
+			Ok(parsed) => {
+				stream.unset_rewind_point();
+				Ok(parsed)
+			},
 			Err(error) => {
-				*stream = stream_clone;
+				stream.rewind();
 				Err(error)
 			}
 		}
 	}
 }
 
-impl<T: Clone + Sized, U: Parsable<T>> Parsable<T> for Option<U> {
-	fn try_parse_no_rewind(stream: &mut impl ParseStream<T>, position: usize) -> Result<(Self, usize), ParseError<T>> {
+impl<T: Copy + Sized, U: Parsable<T>> Parsable<T> for Option<U> {
+	fn try_parse_no_rewind(stream: &mut ParseStream<T, impl Iterator<Item=T>>, position: usize) -> Result<(Self, usize), ParseError<T>> {
 		Ok(match U::try_parse(stream, position) {
 			Ok((parsed, r)) => (Some(parsed), r),
 			Err(_) => (None, 0)
@@ -26,8 +29,8 @@ impl<T: Clone + Sized, U: Parsable<T>> Parsable<T> for Option<U> {
 	}
 }
 
-impl<T: Clone + Sized, U: Parsable<T>> Parsable<T> for Vec<U> {
-	fn try_parse_no_rewind(stream: &mut impl ParseStream<T>, position: usize) -> Result<(Self, usize), ParseError<T>> {
+impl<T: Copy + Sized, U: Parsable<T>> Parsable<T> for Vec<U> {
+	fn try_parse_no_rewind(stream: &mut ParseStream<T, impl Iterator<Item=T>>, position: usize) -> Result<(Self, usize), ParseError<T>> {
 		let mut new = Vec::new();
 		let mut read = 0;
 		while let Ok((parsed, r)) = U::try_parse(stream, position + read) {
@@ -38,8 +41,8 @@ impl<T: Clone + Sized, U: Parsable<T>> Parsable<T> for Vec<U> {
 	}
 }
 
-impl<T: Clone + Sized, U1: Parsable<T>, U2: Parsable<T>> Parsable<T> for (U1, U2) {
-	fn try_parse_no_rewind(stream: &mut impl ParseStream<T>, position: usize) -> Result<(Self, usize), ParseError<T>> {
+impl<T: Copy + Sized, U1: Parsable<T>, U2: Parsable<T>> Parsable<T> for (U1, U2) {
+	fn try_parse_no_rewind(stream: &mut ParseStream<T, impl Iterator<Item=T>>, position: usize) -> Result<(Self, usize), ParseError<T>> {
 		let mut read = 0;
 		let u1 = match U1::try_parse_no_rewind(stream, position + read) {
 			Ok((parsed, r)) => {
