@@ -9,7 +9,8 @@ pub trait Parsable<T: Copy + Sized>: Writable<T> {
 		stream.set_rewind_point();
 		match Self::try_parse_no_rewind(&mut ParseStream::from(&mut stream), position) {
 			Ok(parsed) => {
-				stream.unset_rewind_point();
+				stream.rewind();
+				stream.advance(parsed.1); //TODO rework parse_stream
 				Ok(parsed)
 			},
 			Err(error) => {

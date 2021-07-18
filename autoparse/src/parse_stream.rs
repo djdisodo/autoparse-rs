@@ -8,21 +8,17 @@ pub struct ParseStream<T: Sized + Clone, U: Iterator<Item=T>> {
 	inner: U,
 	buffer: VecDeque<T>,
 	buffer_position: usize,
-	storing: bool
+	storing: bool,
 }
 
 impl<T: Sized + Clone, U: Iterator<Item=T>> ParseStream<T, U> {
 
 	pub fn set_rewind_point(&mut self) {
-		if self.storing == true {
-			for _ in 0..self.buffer_position {
-				self.buffer.pop_front().unwrap();
-			}
-			self.buffer_position = 0;
-		} else {
-			self.storing = true;
-			self.buffer.clear();
+		for _ in 0..self.buffer_position {
+			self.buffer.pop_front().unwrap();
 		}
+		self.buffer_position = 0;
+		self.storing = true;
 	}
 
 	pub fn unset_rewind_point(&mut self) {
@@ -35,7 +31,6 @@ impl<T: Sized + Clone, U: Iterator<Item=T>> ParseStream<T, U> {
 
 	pub fn rewind(&mut self) {
 		self.buffer_position = 0;
-		self.storing = false;
 	}
 
 	pub fn read(&mut self, other: &mut [T]) -> usize  {
@@ -55,18 +50,6 @@ impl<T: Sized + Clone, U: Iterator<Item=T>> ParseStream<T, U> {
 		}
 	}
 
-	pub fn take(&mut self, amount: usize) -> ParseStream<T, IntoIter<T>> {
-		let mut buffer = Vec::with_capacity(amount);
-		for _ in 0..amount {
-			if let Some(next) = self.next() {
-				buffer.push(next);
-			} else {
-				break;
-			}
-		}
-		ParseStream::from(buffer.into_iter())
-	}
-	
 	pub fn into_inner(self) -> U {
 		self.inner
 	}
@@ -100,7 +83,7 @@ impl<T: Sized + Clone, U: Iterator<Item=T>> From<U> for ParseStream<T, U> {
 			inner,
 			buffer: Default::default(),
 			buffer_position: Default::default(),
-			storing: Default::default()
+			storing: Default::default(),
 		}
 	}
 }

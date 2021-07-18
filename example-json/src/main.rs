@@ -52,15 +52,11 @@ pub fn main() {
     let json = std::fs::read_to_string("test.json").unwrap();
     let collected: Vec<char> = json.chars().collect();
     let mut stream = ParseStream::from(collected.into_iter());
-    let mut pos = 0;
+    let pos = 0;
+
     loop {
         let result = Tokens::try_parse(&mut stream, pos);
         println!("{:#?}", result);
-        println!("stream: {:#?}", stream);
-        if let Ok((_, read)) = result {
-            pos += read;
-        } else {
-            break
-        }
     }
+
 }
