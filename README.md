@@ -8,6 +8,7 @@ also check `autoparse-general`
 ## goals
 - [x] minimal parsing 
 - [x] derive macro
+- [ ] rewrite parse stream
 - [ ] lossless/lossy parsing
 - [ ] support indenting
 - [ ] support span

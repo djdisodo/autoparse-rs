@@ -1,3 +1,4 @@
+#![recursion_limit="16"]
 use autoparse_general::*;
 use autoparse_derive::*;
 use autoparse::ParseStream;
@@ -39,10 +40,10 @@ pub struct JsonArray {
 #[derive(Clone, Debug, Writable, Parsable)]
 #[autoparse_for(char)]
 pub enum JsonValue {
-    Object(JsonObject),
-    Array(JsonArray),
     Str(Literal),
-    Numeric(Signed)
+    Numeric(Signed),
+    Object(JsonObject),
+    Array(JsonArray)
 }
 
 
@@ -54,9 +55,6 @@ pub fn main() {
     let mut stream = ParseStream::from(collected.into_iter());
     let pos = 0;
 
-    loop {
-        let result = Tokens::try_parse(&mut stream, pos);
-        println!("{:#?}", result);
-    }
-
+    let result = JsonObject::try_parse(&mut stream, pos);
+    println!("{:#?}", result);
 }

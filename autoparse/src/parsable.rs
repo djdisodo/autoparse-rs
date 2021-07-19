@@ -11,6 +11,7 @@ pub trait Parsable<T: Copy + Sized>: Writable<T> {
 			Ok(parsed) => {
 				stream.rewind();
 				stream.advance(parsed.1); //TODO rework parse_stream
+				stream.unset_rewind_point();
 				Ok(parsed)
 			},
 			Err(error) => {
