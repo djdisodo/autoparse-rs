@@ -1,17 +1,43 @@
 use std::collections::VecDeque;
 use crate::{Parsable, ParseError};
-use std::vec::IntoIter;
 use std::fmt::Debug;
 
-#[derive(Clone, Debug)]
-pub struct ParseStream<T: Sized + Clone, U: Iterator<Item=T>> {
-	inner: U,
-	buffer: VecDeque<T>,
-	buffer_position: usize,
-	storing: bool,
+#[derive(Debug)]
+enum ParseStreamReference<'a, 'b, T: Sized + Clone, U: Iterator<Item=T>> {
+	Forked(&'b mut ParseStream<'a, T, U>),
+	Iter(&'b mut U)
 }
 
-impl<T: Sized + Clone, U: Iterator<Item=T>> ParseStream<T, U> {
+impl<T: Sized + Clone, U: Iterator<Item=T>> Iterator for ParseStreamReference<'_, '_, T, U> {
+	type Item = T;
+
+	fn next(&mut self) -> Option<Self::Item> {
+		match self {
+			Self::Forked(forked) => forked.next(),
+			Self::Iter(iter) => iter.next()
+		}
+	}
+}
+
+#[derive(Debug)]
+pub struct ParseStream<'a, T: Sized + Clone, U: Iterator<Item=T>> {
+	inner: ParseStreamReference<'a, 'a, T, U>,
+	buffer: VecDeque<T>,
+	buffer_position: usize,
+	storing: bool
+}
+
+
+impl<'a, T: Sized + Clone, U: Iterator<Item=T>> ParseStream<'a, T, U> {
+
+	pub fn fork<'b: 'a>(&'b mut self) -> ParseStream<'b, T, U> {
+		ParseStream {
+			inner: ParseStreamReference::Forked(self),
+			buffer: Default::default(),
+			buffer_position: 0,
+			storing: false
+		}
+	}
 
 	pub fn set_rewind_point(&mut self) {
 		for _ in 0..self.buffer_position {
@@ -49,13 +75,9 @@ impl<T: Sized + Clone, U: Iterator<Item=T>> ParseStream<T, U> {
 			self.next();
 		}
 	}
-
-	pub fn into_inner(self) -> U {
-		self.inner
-	}
 }
 
-impl<T: Sized + Clone, U: Iterator<Item=T>> Iterator for ParseStream<T, U> {
+impl<T: Sized + Clone, U: Iterator<Item=T>> Iterator for ParseStream<'_, T, U> {
 	type Item = T;
 
 	fn next(&mut self) -> Option<Self::Item> {
@@ -77,10 +99,10 @@ impl<T: Sized + Clone, U: Iterator<Item=T>> Iterator for ParseStream<T, U> {
 }
 
 
-impl<T: Sized + Clone, U: Iterator<Item=T>> From<U> for ParseStream<T, U> {
-	fn from(inner: U) -> Self {
+impl<'a, T: Sized + Clone, U: Iterator<Item=T>> From<&'a mut U> for ParseStream<'a, T, U> {
+	fn from(inner: &'a mut U) -> Self {
 		Self {
-			inner,
+			inner: ParseStreamReference::Iter(inner),
 			buffer: Default::default(),
 			buffer_position: Default::default(),
 			storing: Default::default(),
@@ -92,8 +114,10 @@ pub trait ParseTo<T: Sized + Copy, U: Parsable<T>> {
 	fn try_parse_to(&mut self, position: usize) -> Result<(U, usize), ParseError<T>>;
 }
 
-impl<T: Sized + Copy, U: Parsable<T>, V: Iterator<Item=T>> ParseTo<T, U> for ParseStream<T, V> {
+impl<T: Sized + Copy, U: Parsable<T>, V: Iterator<Item=T>> ParseTo<T, U> for ParseStream<'_, T, V> {
 	fn try_parse_to(&mut self, position: usize) -> Result<(U, usize), ParseError<T>> {
 		U::try_parse(self, position)
 	}
 }
+
+

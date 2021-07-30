@@ -123,15 +123,14 @@ pub fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &
 		/* field_types.extend(field_types_variant); */
 
 		token_stream_parse.extend_one(quote! {
-			let mut stream_temp = autoparse::ParseStream::from(stream);
 			match {
-				(| stream | { #token_stream_parse_variant })(&mut stream_temp)
+				let mut a = stream.fork();
+				(| stream | { #token_stream_parse_variant })(&mut a)
 			} {
 				Ok((parsed, read)) => return Ok((parsed, read)),
 				Err(e) => {
 					let e: autoparse::ParseError<#autoparse_for> = e;
 					(*error).extend(e.expections);
-					stream = stream_temp.into_inner();
 					stream.rewind();
 				}
 			}

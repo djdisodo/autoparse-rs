@@ -19,9 +19,7 @@ macro_rules! token {
 				let token: Vec<char> = Self::TOKEN.chars().collect();
 				let mut check = vec![0 as char; token.len()];
 				stream.read(&mut check);
-				println!("try_parse: {}", Self::TOKEN);		
 				if check == token {
-					println!("parsed: {}", Self::TOKEN);
 					Ok((Self, Self::TOKEN.len()))
 				} else {
 					Err(autoparse::ParseError::new([token].into(), position))
