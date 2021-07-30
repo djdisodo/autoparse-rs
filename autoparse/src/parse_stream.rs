@@ -30,7 +30,7 @@ pub struct ParseStream<'a, T: Sized + Clone, U: Iterator<Item=T>> {
 
 impl<'a, T: Sized + Clone, U: Iterator<Item=T>> ParseStream<'a, T, U> {
 
-	pub fn fork<'b: 'a>(&'b mut self) -> ParseStream<'b, T, U> {
+	pub fn fork(&'a mut self) -> ParseStream<'a, T, U> {
 		ParseStream {
 			inner: ParseStreamReference::Forked(self),
 			buffer: Default::default(),
