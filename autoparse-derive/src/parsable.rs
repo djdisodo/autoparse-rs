@@ -124,8 +124,7 @@ pub fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &
 
 		token_stream_parse.extend_one(quote! {
 			match {
-				let mut a = stream.fork();
-				(| stream | { #token_stream_parse_variant })(&mut a)
+				(|| { #token_stream_parse_variant })()
 			} {
 				Ok((parsed, read)) => return Ok((parsed, read)),
 				Err(e) => {

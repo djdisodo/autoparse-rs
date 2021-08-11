@@ -51,8 +51,8 @@ pub enum JsonValue {
 use autoparse::*;
 pub fn main() {
     let json = std::fs::read_to_string("test.json").unwrap();
-    let collected: Vec<char> = json.chars().collect();
-    let mut stream = ParseStream::from(collected.into_iter());
+    let mut iter = json.chars();
+    let mut stream = ParseStream::from(&mut iter);
     let pos = 0;
 
     let result = JsonObject::try_parse(&mut stream, pos);
