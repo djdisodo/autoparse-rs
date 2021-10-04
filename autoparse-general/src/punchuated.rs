@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use autoparse::{Parsable, ParseError, ParseStream, Writable};
+use autoparse::{Parsable, ParseError, ParseStream, Writable, ParseStreamReference};
 use super::{MaySpaced, MayNotSpaced, MaySpace, MayNotSpace};
 use dede::*;
 use std::fmt::Debug;
@@ -12,7 +12,7 @@ pub struct Punchuated<V: Writable<char>, D: Writable<char> + Default> {
 }
 
 impl <V: Parsable<char> + Debug, D: Parsable<char> + Default + Debug> Parsable<char> for Punchuated<V, D> {
-	fn try_parse_no_rewind(stream: &mut ParseStream<char, impl Iterator<Item=char>>, position: usize) -> Result<(Self, usize), ParseError<char>> {
+	fn try_parse_no_rewind<'a>(stream: &mut ParseStream<'a, char, impl ParseStreamReference<char> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), ParseError<char>> {
 		let mut elements: Vec<V> = vec![];
 		let mut read = 0;
 		if let Ok((Some(value), r)) = Option::<MayNotSpaced<V>>::try_parse(stream, position) {
@@ -25,10 +25,14 @@ impl <V: Parsable<char> + Debug, D: Parsable<char> + Default + Debug> Parsable<c
 			elements.push(value.inner);
 		}
 
-		Ok((Self {
+		let s = Self {
 			elements,
 			delimiter: Default::default()
-		}, read))
+		};
+
+		println!("{:#?}", s);
+
+		Ok((s, read))
 	}
 }
 

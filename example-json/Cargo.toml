@@ -10,3 +10,4 @@ edition = "2018"
 autoparse = { path = "../autoparse/" }
 autoparse-general = { path = "../autoparse-general/" }
 autoparse-derive = { path = "../autoparse-derive/" }
+backtrace = "0.3"

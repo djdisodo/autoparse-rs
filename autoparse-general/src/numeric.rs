@@ -1,14 +1,14 @@
-use autoparse::{Parsable, Writable, ParseError, ParseStream};
+use autoparse::{Parsable, Writable, ParseError, ParseStream, ParseStreamReference};
 use crate::token;
 use autoparse_derive::*;
 
 #[derive(Clone, Debug)]
 pub struct UnsignedInteger {
-	pub literal: Vec<char>
+	pub chars: Vec<char>
 }
 
 impl Parsable<char> for UnsignedInteger {
-	fn try_parse_no_rewind(stream: &mut ParseStream<char, impl Iterator<Item=char>>, position: usize) -> Result<(Self, usize), ParseError<char>> {
+	fn try_parse_no_rewind<'a>(stream: &mut ParseStream<'a, char, impl ParseStreamReference<char> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), ParseError<char>> {
 		let mut literal = vec![];
 		let mut read = 0;
 		let mut reader = ['\0'];
@@ -18,13 +18,12 @@ impl Parsable<char> for UnsignedInteger {
 			reader[0].is_numeric()
 		} {
 			literal.push(reader[0]);
-			stream.set_rewind_point();
 		}
-		stream.rewind();
+		stream.rewind(1);
 		read -= 1;
 		if !literal.is_empty() {
 			Ok((Self {
-				literal
+				chars: literal
 			}, read))	
 		} else {
 			//TODO expected numeric
@@ -35,7 +34,7 @@ impl Parsable<char> for UnsignedInteger {
 
 impl Writable<char> for UnsignedInteger {
 	fn write(&self, stream: &mut Vec<char>) {
-		stream.extend_from_slice(&self.literal)
+		stream.extend_from_slice(&self.chars)
 	}
 }
 

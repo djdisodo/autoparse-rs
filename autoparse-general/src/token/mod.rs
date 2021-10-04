@@ -15,7 +15,7 @@ macro_rules! token {
 		}
 
 		impl autoparse::Parsable<char> for $id {
-			fn try_parse_no_rewind(stream: &mut autoparse::ParseStream<char, impl Iterator<Item=char>>, position: usize) -> Result<(Self, usize), autoparse::ParseError<char>> {
+			fn try_parse_no_rewind<'a>(stream: &mut autoparse::ParseStream<'a, char, impl autoparse::ParseStreamReference<char> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), autoparse::ParseError<char>> {
 				let token: Vec<char> = Self::TOKEN.chars().collect();
 				let mut check = vec![0 as char; token.len()];
 				stream.read(&mut check);

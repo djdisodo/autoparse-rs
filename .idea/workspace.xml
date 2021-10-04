@@ -7,7 +7,20 @@
   <component name="ChangeListManager">
     <list default="true" id="6f49b0e2-011d-44c9-90f2-377e6fe26d20" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-derive/src/parsable.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-derive/src/parsable.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-general/num.rs.bkp" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/num.rs.bkp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-general/src/literal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/literal.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-general/src/numeric.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/numeric.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-general/src/punchuated.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/punchuated.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-general/src/space.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/space.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse-general/src/token/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse-general/src/token/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autoparse/src/parsable.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse/src/parsable.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/autoparse/src/parse_stream.rs" beforeDir="false" afterPath="$PROJECT_DIR$/autoparse/src/parse_stream.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-json/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/example-json/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-json/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/example-json/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-json/test.json" beforeDir="false" afterPath="$PROJECT_DIR$/example-json/test.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.json" beforeDir="false" afterPath="$PROJECT_DIR$/test.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +57,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Documents/PrototypeG2" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
     <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
@@ -54,11 +67,38 @@
       <command value="cargo update" />
       <command value="cargo build --pretty expanded" />
       <command value="cargo build" />
+      <command value="cargo run" />
     </option>
   </component>
-  <component name="RunManager" selected="Cargo.build [autoparse]">
+  <component name="RunManager" selected="Cargo.run [autoparse]">
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="build [autoparse]" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="build" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="run [autoparse]" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="run" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
@@ -89,6 +129,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.run [autoparse]" />
         <item itemvalue="Cargo.build [autoparse]" />
         <item itemvalue="Cargo.build [autoparse]" />
         <item itemvalue="Cargo.build [autoparse]" />
@@ -110,6 +151,10 @@
       <updated>1616927430983</updated>
       <workItem from="1616927432205" duration="14453000" />
       <workItem from="1621664795940" duration="2202000" />
+      <workItem from="1628402656237" duration="29000" />
+      <workItem from="1630856015610" duration="3657000" />
+      <workItem from="1631719246337" duration="56000" />
+      <workItem from="1633292963268" duration="5233000" />
     </task>
     <servers />
   </component>
@@ -117,29 +162,33 @@
     <option name="version" value="3" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="488" y="80" key="#com.intellij.ide.util.MemberChooser" timestamp="1616946312009">
-      <screen x="0" y="0" width="1366" height="728" />
+    <state x="740" y="275" key="FileChooserDialogImpl" timestamp="1631719300580">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="488" y="80" key="#com.intellij.ide.util.MemberChooser/0.0.1366.728@0.0.1366.728" timestamp="1616946312009" />
-    <state width="1323" height="179" key="GridCell.Tab.0.bottom" timestamp="1616950111668">
-      <screen x="0" y="0" width="1366" height="728" />
+    <state x="740" y="275" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1631719300580" />
+    <state width="1877" height="46" key="GridCell.Tab.0.bottom" timestamp="1633347991640">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1323" height="179" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1616950111668" />
-    <state width="1323" height="179" key="GridCell.Tab.0.center" timestamp="1616950111668">
-      <screen x="0" y="0" width="1366" height="728" />
+    <state width="1877" height="46" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1633347991640" />
+    <state width="1877" height="46" key="GridCell.Tab.0.center" timestamp="1633347991640">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1323" height="179" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1616950111668" />
-    <state width="1323" height="179" key="GridCell.Tab.0.left" timestamp="1616950111668">
-      <screen x="0" y="0" width="1366" height="728" />
+    <state width="1877" height="46" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1633347991640" />
+    <state width="1877" height="46" key="GridCell.Tab.0.left" timestamp="1633347991640">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1323" height="179" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1616950111668" />
-    <state width="1323" height="179" key="GridCell.Tab.0.right" timestamp="1616950111668">
-      <screen x="0" y="0" width="1366" height="728" />
+    <state width="1877" height="46" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1633347991640" />
+    <state width="1877" height="46" key="GridCell.Tab.0.right" timestamp="1633347991640">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1323" height="179" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1616950111668" />
-    <state x="339" y="162" width="672" height="677" key="run.anything.popup" timestamp="1621182717854">
-      <screen x="0" y="0" width="1366" height="728" />
+    <state width="1877" height="46" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1633347991640" />
+    <state x="668" y="118" width="584" height="804" key="find.popup" timestamp="1633346675630">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="339" y="162" width="672" height="677" key="run.anything.popup/0.0.1366.728@0.0.1366.728" timestamp="1621182717854" />
+    <state x="668" y="118" width="584" height="804" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1633346675630" />
+    <state x="616" y="240" width="672" height="677" key="run.anything.popup" timestamp="1633346392954">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="616" y="240" width="672" height="677" key="run.anything.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1633346392954" />
   </component>
 </project>

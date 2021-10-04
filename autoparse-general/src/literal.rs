@@ -1,4 +1,4 @@
-use autoparse::{Parsable, Writable, ParseError, ParseStream};
+use autoparse::{Parsable, Writable, ParseError, ParseStream, ParseStreamReference};
 use dede::*;
 use snailquote::*;
 use crate::token;
@@ -19,7 +19,7 @@ impl Writable<char> for Literal {
 }
 
 impl Parsable<char> for Literal {
-	fn try_parse_no_rewind(stream: &mut ParseStream<char, impl Iterator<Item=char>>, position: usize) -> Result<(Self, usize), ParseError<char>> {
+	fn try_parse_no_rewind<'a>(stream: &mut ParseStream<'a, char, impl ParseStreamReference<char> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), ParseError<char>> {
 		let mut buffer = vec![];
 		let mut reader = ['\0'];
 		let mut read = 1;

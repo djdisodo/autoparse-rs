@@ -1,6 +1,6 @@
 //! for parsing spaces(blank)
 //! TODO `MayNotSpace` and `MayNotSpaced`
-use autoparse::{Parsable, ParseError, ParseStream, Writable};
+use autoparse::{Parsable, ParseError, ParseStream, Writable, ParseStreamReference};
 use autoparse_derive::*;
 use dede::*;
 
@@ -20,7 +20,7 @@ impl Default for Space {
 }
 
 impl Parsable<char> for Space {
-	fn try_parse_no_rewind(stream: &mut ParseStream<char, impl Iterator<Item=char>>, position: usize) -> Result<(Self, usize), ParseError<char>> {
+	fn try_parse_no_rewind<'a>(stream: &mut ParseStream<'a, char, impl ParseStreamReference<char> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), ParseError<char>> {
 		let mut spaces = Vec::new();
 		while match { //TODO fix byte skipping
 			stream.set_rewind_point();
@@ -35,7 +35,7 @@ impl Parsable<char> for Space {
 			_ => false
 		} {}
 		
-		stream.rewind();
+		stream.rewind_all();
 		if spaces.is_empty() {
 			Err(ParseError::new([
 								vec![' '], vec!['\t'], vec!['\r'], vec!['\n']

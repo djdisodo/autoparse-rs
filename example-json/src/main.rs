@@ -1,4 +1,3 @@
-#![recursion_limit="16"]
 use autoparse_general::*;
 use autoparse_derive::*;
 use autoparse::ParseStream;
@@ -40,10 +39,10 @@ pub struct JsonArray {
 #[derive(Clone, Debug, Writable, Parsable)]
 #[autoparse_for(char)]
 pub enum JsonValue {
-    Str(Literal),
-    Numeric(Signed),
     Object(JsonObject),
-    Array(JsonArray)
+    Array(JsonArray),
+    Str(Literal),
+    Numeric(Signed)
 }
 
 
@@ -52,9 +51,11 @@ use autoparse::*;
 pub fn main() {
     let json = std::fs::read_to_string("test.json").unwrap();
     let mut iter = json.chars();
-    let mut stream = ParseStream::from(&mut iter);
     let pos = 0;
-
-    let result = JsonObject::try_parse(&mut stream, pos);
+    let mut ss = ParseStreamInitial::from(&mut iter);
+    let mut stream = ParseStream::from(&mut ss);
+    let bt = backtrace::Backtrace::new(); //trace start
+    let result = Signed::try_parse(&mut stream, pos); //<--- I want to trace this
     println!("{:#?}", result);
+    println!("{:#?}", bt);
 }

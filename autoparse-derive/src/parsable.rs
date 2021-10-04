@@ -68,7 +68,7 @@ pub fn derive_parsable_for_struct(ident: &Ident, generics: &Generics, data_struc
 	let (token_stream_parse, /* field_type */_ ) = generate_code_for_fields(&data_struct.fields, quote! { Self }, autoparse_for);
 
 	let items = quote! {
-		fn try_parse_no_rewind(stream: &mut autoparse::ParseStream<#autoparse_for, impl Iterator<Item=#autoparse_for>>, position: usize) -> Result<(Self, usize), autoparse::ParseError<#autoparse_for>> {
+		fn try_parse_no_rewind<'a>(stream: &mut autoparse::ParseStream<'a, #autoparse_for, impl autoparse::ParseStreamReference<#autoparse_for> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), autoparse::ParseError<#autoparse_for>> {
 			#token_stream_parse
 		}
 	};
@@ -130,13 +130,13 @@ pub fn derive_parsable_for_enum(ident: &Ident, generics: &Generics, data_enum: &
 				Err(e) => {
 					let e: autoparse::ParseError<#autoparse_for> = e;
 					(*error).extend(e.expections);
-					stream.rewind();
+					stream.rewind_all();
 				}
 			}
 		});
 	}
 	let items = quote! {
-		fn try_parse_no_rewind(mut stream: &mut autoparse::ParseStream<#autoparse_for, impl Iterator<Item=#autoparse_for>>, position: usize) -> Result<(Self, usize), autoparse::ParseError<#autoparse_for>> {
+		fn try_parse_no_rewind<'a>(mut stream: &mut autoparse::ParseStream<'a, #autoparse_for, impl autoparse::ParseStreamReference<#autoparse_for> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), autoparse::ParseError<#autoparse_for>> {
 			#token_stream_parse
 			Err(error)
 		}
