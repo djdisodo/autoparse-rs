@@ -35,7 +35,7 @@ impl Parsable<char> for Space {
 			_ => false
 		} {}
 		
-		stream.rewind_all();
+		stream.rewind(1);
 		if spaces.is_empty() {
 			Err(ParseError::new([
 								vec![' '], vec!['\t'], vec!['\r'], vec!['\n']

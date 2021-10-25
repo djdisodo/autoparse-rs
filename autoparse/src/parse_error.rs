@@ -3,19 +3,24 @@ use std::ops::{Deref, DerefMut};
 
 #[derive(Clone, Debug, Default)]
 pub struct ParseError<T> {
-	pub expections: Vec<Expection<T>> //(expected, at)
+	pub expectations: Vec<Expectation<T>> //(expected, at)
 }
 
 #[derive(Clone, Debug)]
-pub struct Expection<T> {
-	pub expected: Vec<Vec<T>>,
+pub struct Expectation<T> {
+	pub expected: Vec<ExpectedValue<T>>,
 	pub at: usize
 }
 
+pub enum ExpectedValue<T> {
+	Owned(T),
+	String(String)
+}
+
 impl<T> ParseError<T> {
-	pub fn new(expected: Vec<Vec<T>>, at: usize) -> Self {
+	pub fn new(expected: Vec<ExpectedValue<T>>, at: usize) -> Self {
 		Self {
-			expections: vec![Expection {
+			expectations: vec![Expectation {
 				expected,
 				at
 			}]
@@ -23,7 +28,7 @@ impl<T> ParseError<T> {
 	}
 
 	pub fn advance(mut self, amount: usize) -> Self {
-		for exception in &mut self.expections {
+		for exception in &mut self.expectations {
 			exception.advance(amount);
 		}
 		self
@@ -31,21 +36,21 @@ impl<T> ParseError<T> {
 }
 
 impl<T> Deref for ParseError<T> {
-	type Target = Vec<Expection<T>>;
+	type Target = Vec<Expectation<T>>;
 
 	fn deref(&self) -> &Self::Target {
-		&self.expections
+		&self.expectations
 	}
 }
 
 impl<T> DerefMut for ParseError<T> {
 	fn deref_mut(&mut self) -> &mut Self::Target {
-		&mut self.expections
+		&mut self.expectations
 	}
 }
 
-impl<T> Expection<T> {
-	pub fn new(expected: Vec<Vec<T>>, at: usize) -> Self {
+impl<T> Expectation<T> {
+	pub fn new(expected: Vec<ExpectedValue<T>>, at: usize) -> Self {
 		Self {
 			expected,
 			at

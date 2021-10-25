@@ -11,16 +11,16 @@ impl Parsable<char> for UnsignedInteger {
 	fn try_parse_no_rewind<'a>(stream: &mut ParseStream<'a, char, impl ParseStreamReference<char> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), ParseError<char>> {
 		let mut literal = vec![];
 		let mut read = 0;
-		let mut reader = ['\0'];
 		stream.set_rewind_point();
-		while {
-			read += stream.read(&mut reader);
-			reader[0].is_numeric()
-		} {
-			literal.push(reader[0]);
+		while let Some(c) = stream.next() {
+			if c.is_numeric() {
+				literal.push(c);
+				read += 1;
+			} else {
+				stream.rewind(1);
+				break;
+			}
 		}
-		stream.rewind(1);
-		read -= 1;
 		if !literal.is_empty() {
 			Ok((Self {
 				chars: literal

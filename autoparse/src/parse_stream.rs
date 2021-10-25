@@ -15,7 +15,7 @@ impl<'a, T: Sized + Clone, U: Iterator<Item=T> + ?Sized + 'a> Iterator for Parse
 	type Item = T;
 
 	fn next(&mut self) -> Option<Self::Item> {
-		return if let Some(next) = self.buffer.get(self.buffer_position) {
+		let res = if let Some(next) = self.buffer.get(self.buffer_position) {
 			self.buffer_position += 1;
 			Some(next.clone())
 		} else {
@@ -28,7 +28,8 @@ impl<'a, T: Sized + Clone, U: Iterator<Item=T> + ?Sized + 'a> Iterator for Parse
 			} else {
 				None
 			}
-		}	
+		};
+		return res;
 	}
 }
 

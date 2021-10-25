@@ -29,9 +29,6 @@ impl <V: Parsable<char> + Debug, D: Parsable<char> + Default + Debug> Parsable<c
 			elements,
 			delimiter: Default::default()
 		};
-
-		println!("{:#?}", s);
-
 		Ok((s, read))
 	}
 }
