@@ -1,4 +1,4 @@
-use autoparse::{Parsable, Writable, ParseError, ParseStream, ParseStreamReference};
+use autoparse::{ExpectedValue, Parsable, ParseError, ParseStream, ParseStreamReference, Writable};
 use crate::token;
 use autoparse_derive::*;
 
@@ -27,7 +27,7 @@ impl Parsable<char> for UnsignedInteger {
 			}, read))	
 		} else {
 			//TODO expected numeric
-			Err(ParseError::new(vec![vec!['0']], position))
+			Err(ParseError::new(vec![ExpectedValue::String("0~9".to_string())], position))
 		}
 	}
 }

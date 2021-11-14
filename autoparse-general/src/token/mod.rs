@@ -22,7 +22,7 @@ macro_rules! token {
 				if check == token {
 					Ok((Self, Self::TOKEN.len()))
 				} else {
-					Err(autoparse::ParseError::new([token].into(), position))
+					Err(autoparse::ParseError::new([autoparse::ExpectedValue::String(Self::TOKEN.to_string())].into(), position))
 				}
 			}
 		}

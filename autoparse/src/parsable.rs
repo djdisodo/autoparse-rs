@@ -1,8 +1,10 @@
 use crate::{ParseError, ParseStreamReference};
 use crate::ParseStream;
 use crate::Writable;
+use crate::ParseStreamItem;
+use std::fmt::Debug;
 
-pub trait Parsable<T: Clone + Sized>: Writable<T> {
+pub trait Parsable<T: ParseStreamItem>: Writable<T> + Debug {
 	fn try_parse_no_rewind<'a>(stream: &mut ParseStream<'a, T, impl ParseStreamReference<T> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), ParseError<T>>;
 	fn try_parse<'a>(stream: &mut ParseStream<'a, T, impl ParseStreamReference<T> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), ParseError<T>> {
 		let mut forked = stream.fork();
@@ -20,7 +22,7 @@ pub trait Parsable<T: Clone + Sized>: Writable<T> {
 	}
 }
 
-impl<T: Clone + Sized, U: Parsable<T>> Parsable<T> for Option<U> {
+impl<T: ParseStreamItem, U: Parsable<T>> Parsable<T> for Option<U> {
 	fn try_parse_no_rewind<'a>(stream: &mut ParseStream<'a, T, impl ParseStreamReference<T> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), ParseError<T>> {
 		Ok(match U::try_parse(stream, position) {
 			Ok((parsed, r)) => (Some(parsed), r),
@@ -29,7 +31,7 @@ impl<T: Clone + Sized, U: Parsable<T>> Parsable<T> for Option<U> {
 	}
 }
 
-impl<T: Clone + Sized, U: Parsable<T>> Parsable<T> for Vec<U> {
+impl<T: ParseStreamItem, U: Parsable<T>> Parsable<T> for Vec<U> {
 	fn try_parse_no_rewind<'a>(stream: &mut ParseStream<'a, T, impl ParseStreamReference<T> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), ParseError<T>> {
 		let mut new = Vec::new();
 		let mut read = 0;
@@ -41,7 +43,7 @@ impl<T: Clone + Sized, U: Parsable<T>> Parsable<T> for Vec<U> {
 	}
 }
 
-impl<T: Clone + Sized, U1: Parsable<T>, U2: Parsable<T>> Parsable<T> for (U1, U2) {
+impl<T: ParseStreamItem, U1: Parsable<T>, U2: Parsable<T>> Parsable<T> for (U1, U2) {
 	fn try_parse_no_rewind<'a>(stream: &mut ParseStream<'a, T, impl ParseStreamReference<T> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), ParseError<T>> {
 		let mut read = 0;
 		let u1 = match U1::try_parse_no_rewind(stream, position + read) {

@@ -57,7 +57,7 @@ pub fn main() {
     let mut ss = ParseStreamInitial::from(&mut iter);
     let mut stream = ParseStream::from(&mut ss);
     let result = Vec::<Tokens>::try_parse(&mut stream, pos);
-    let mut ss2 = ParseStreamInitial::from(&mut result);
+    let mut ss2 = ParseStreamInitial::from(&mut result.unwrap().0.into_iter());
     let mut stream2 = ParseStream::from(&mut ss);
     let result = JsonValue::try_parse(&mut stream2, pos);
     println!("{:#?}", result);

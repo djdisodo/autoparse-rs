@@ -1,17 +1,18 @@
 use std::cmp::min;
 use std::collections::VecDeque;
 use std::fmt::Debug;
-use std::intrinsics::transmute;
 use std::marker::PhantomData;
 
+pub trait ParseStreamItem = Sized + Clone + Debug;
+
 #[derive(Debug)]
-pub struct ParseStreamInitial<'a, T: Sized + Clone, U: Iterator<Item=T> + ?Sized + 'a> {
+pub struct ParseStreamInitial<'a, T: ParseStreamItem, U: Iterator<Item=T> + ?Sized + 'a> {
 	inner: &'a mut U,
 	buffer: VecDeque<T>,
 	buffer_position: usize,
 	storing: bool
 }
-impl<'a, T: Sized + Clone, U: Iterator<Item=T> + ?Sized + 'a> Iterator for ParseStreamInitial<'a, T, U> {
+impl<'a, T: ParseStreamItem, U: Iterator<Item=T> + ?Sized + 'a> Iterator for ParseStreamInitial<'a, T, U> {
 	type Item = T;
 
 	fn next(&mut self) -> Option<Self::Item> {
@@ -33,11 +34,11 @@ impl<'a, T: Sized + Clone, U: Iterator<Item=T> + ?Sized + 'a> Iterator for Parse
 	}
 }
 
-pub trait ParseStreamReference<T>: Iterator<Item=T> {
+pub trait ParseStreamReference<T: ParseStreamItem>: Iterator<Item=T> {
 	fn rewind(&mut self, amount: usize);
 }
 
-impl<'a, T: Sized + Clone, U: Iterator<Item=T> + ?Sized + 'a> ParseStreamReference<T> for ParseStreamInitial<'a, T, U> {
+impl<'a, T: ParseStreamItem, U: Iterator<Item=T> + ?Sized + 'a> ParseStreamReference<T> for ParseStreamInitial<'a, T, U> {
 	fn rewind(&mut self, amount: usize) {
 		self.buffer_position -= min(self.buffer_position, amount);
 	}
@@ -47,7 +48,7 @@ impl<'a, T: Sized + Clone, U: Iterator<Item=T> + ?Sized + 'a> ParseStreamReferen
 
 
 #[derive(Debug)]
-pub struct ParseStream<'a, T: Sized + Clone, U: ParseStreamReference<T> + ?Sized + 'a> {
+pub struct ParseStream<'a, T: ParseStreamItem, U: ParseStreamReference<T> + ?Sized + 'a> {
 	inner: &'a mut U,
 	buffer_position: usize,
 	__d: PhantomData<T>
@@ -76,7 +77,7 @@ fn test2<'a>(stream: &'a mut ParseStream<'a, i32, impl Iterator<Item=i32> + ?Siz
 }
 */
 
-impl<'a, T: Sized + Clone, U: ParseStreamReference<T> + ?Sized + 'a> ParseStreamReference<T> for ParseStream<'a, T, U> {
+impl<'a, T: ParseStreamItem, U: ParseStreamReference<T> + ?Sized + 'a> ParseStreamReference<T> for ParseStream<'a, T, U> {
 	fn rewind(&mut self, mut amount: usize) {
 		amount = min(self.buffer_position, amount);
 		self.buffer_position -= min(self.buffer_position, amount);
@@ -84,7 +85,7 @@ impl<'a, T: Sized + Clone, U: ParseStreamReference<T> + ?Sized + 'a> ParseStream
 	}
 }
 
-impl<'a, T: Sized + Clone, U: ParseStreamReference<T> + ?Sized + 'a> ParseStream<'a, T, U> {
+impl<'a, T: ParseStreamItem, U: ParseStreamReference<T> + ?Sized + 'a> ParseStream<'a, T, U> {
 
 	pub fn fork<'b>(&'b mut self) -> ParseStream<'b, T, dyn ParseStreamReference<T>> {
 		ParseStream {
@@ -121,7 +122,7 @@ impl<'a, T: Sized + Clone, U: ParseStreamReference<T> + ?Sized + 'a> ParseStream
 	}
 }
 
-impl<'a, T: Sized + Clone, U: ParseStreamReference<T> + ?Sized + 'a> Iterator for ParseStream<'a, T, U> {
+impl<'a, T: ParseStreamItem, U: ParseStreamReference<T> + ?Sized + 'a> Iterator for ParseStream<'a, T, U> {
 	type Item = T;
 
 	fn next(&mut self) -> Option<Self::Item> {
@@ -134,7 +135,7 @@ impl<'a, T: Sized + Clone, U: ParseStreamReference<T> + ?Sized + 'a> Iterator fo
 }
 
 
-impl<'a, T: Sized + Clone, U: Iterator<Item=T> + Sized + 'a> From<&'a mut U> for ParseStreamInitial<'a, T, U> {
+impl<'a, T: ParseStreamItem, U: Iterator<Item=T> + Sized + 'a> From<&'a mut U> for ParseStreamInitial<'a, T, U> {
 	fn from(inner: &'a mut U) -> Self {
 		Self {
 			inner,
@@ -145,7 +146,7 @@ impl<'a, T: Sized + Clone, U: Iterator<Item=T> + Sized + 'a> From<&'a mut U> for
 	}
 }
 
-impl<'a, T: Sized + Clone, U: ParseStreamReference<T> + Sized + 'a> From<&'a mut U> for ParseStream<'a, T, U> {
+impl<'a, T: ParseStreamItem, U: ParseStreamReference<T> + ?Sized + 'a> From<&'a mut U> for ParseStream<'a, T, U> {
 	fn from(inner: &'a mut U) -> Self {
 		Self {
 			inner,

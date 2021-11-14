@@ -1,6 +1,6 @@
 //! for parsing spaces(blank)
 //! TODO `MayNotSpace` and `MayNotSpaced`
-use autoparse::{Parsable, ParseError, ParseStream, Writable, ParseStreamReference};
+use autoparse::{ExpectedValue, Parsable, ParseError, ParseStream, ParseStreamReference, Writable};
 use autoparse_derive::*;
 use dede::*;
 
@@ -38,7 +38,7 @@ impl Parsable<char> for Space {
 		stream.rewind(1);
 		if spaces.is_empty() {
 			Err(ParseError::new([
-								vec![' '], vec!['\t'], vec!['\r'], vec!['\n']
+							ExpectedValue::String("TAB, SPACE, CR, LF".to_string())
 			].into(), position))
 		} else {
 			let read = spaces.len();

@@ -1,3 +1,4 @@
+#![feature(trait_alias)]
 mod parsable;
 mod parse_error;
 mod parse_stream;
