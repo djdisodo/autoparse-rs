@@ -18,8 +18,8 @@ macro_rules! token {
 			fn try_parse_no_rewind<'a>(stream: &mut autoparse::ParseStream<'a, char, impl autoparse::ParseStreamReference<char> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), autoparse::ParseError<char>> {
 				let token: Vec<char> = Self::TOKEN.chars().collect();
 				let mut check = vec![0 as char; token.len()];
-				stream.read(&mut check);
-				if check == token {
+				let read = stream.read(&mut check);
+				if check == token && read == Self::TOKEN.len() {
 					Ok((Self, Self::TOKEN.len()))
 				} else {
 					Err(autoparse::ParseError::new([autoparse::ExpectedValue::String(Self::TOKEN.to_string())].into(), position))
