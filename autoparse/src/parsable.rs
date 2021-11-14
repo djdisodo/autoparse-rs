@@ -64,3 +64,9 @@ impl<T: ParseStreamItem, U1: Parsable<T>, U2: Parsable<T>> Parsable<T> for (U1, 
 		Ok(((u1, u2), read))
 	}
 }
+
+impl<T: ParseStreamItem, U: Parsable<T>> Parsable<T> for Box<U> {
+	fn try_parse_no_rewind<'a>(stream: &mut ParseStream<'a, T, impl ParseStreamReference<T> + ?Sized + 'a>, position: usize) -> Result<(Self, usize), ParseError<T>> {
+		U::try_parse_no_rewind(stream, position).map(|inner_result| (Box::new(inner_result.0), inner_result.1))
+	}
+}

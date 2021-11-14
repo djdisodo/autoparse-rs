@@ -30,3 +30,9 @@ impl<T: Clone + Sized, U: Writable<T>> Writable<T> for &U {
 		(*self).write(stream)
 	}
 }
+
+impl<T: Clone + Sized, U: Writable<T>> Writable<T> for Box<U> {
+	fn write(&self, stream: &mut Vec<T>) {
+		(**self).write(stream)
+	}
+}
